@@ -77,20 +77,24 @@ Analyze their current position through:
 Respond with ONLY a valid JSON object in this exact format (no markdown, no explanation):
 {
   "lifePhase": {
-    "element": "One of: Wood, Fire, Earth, Metal, Water",
-    "phase": "One of: Emergence, Expansion, Transition, Refinement, Reflection",
-    "description": "2-3 sentences describing their current life phase through the lens of elemental cycles and natural timing. Emphasize this as a tendency, not a fixed state."
+    "phase": "One of: Discovery, Growth, Harvest, Reflection",
+    "description": "2-3 sentences describing the current life phase using cycle and energy language"
   },
   "coreIdentity": {
-    "yinYangBalance": "Brief description of their current Yin-Yang tendencies (e.g., 'leaning toward Yang energy—action and outward expression')",
-    "tendencies": ["3-4 short tendency words or phrases reflecting their elemental nature"],
-    "inclinations": "2-3 sentences about their natural inclinations through the Five Elements lens. Remind them these are patterns they can work with, not against."
+    "dominantEnergy": "One of: Yin, Yang, Balanced",
+    "elementalTendency": "One of: Wood, Fire, Earth, Metal, Water",
+    "tendencies": ["3-4 short phrases describing behavioral or emotional patterns"],
+    "strengthInsight": "2-3 sentences about inner strengths and resources"
   },
-  "careerFinances": {
-    "elementalTiming": "1-2 sentences about how their current elemental phase influences work and resources",
-    "opportunities": "1-2 sentences about types of opportunities that align with their current cycle. Frame as 'may resonate' not 'will happen'."
+  "focusInsight": {
+    "currentTheme": "1 sentence summarizing what deserves attention now",
+    "supportiveActions": ["2-3 practical actions aligned with this life phase"]
   },
-  "reflectionQuestion": "A single, thought-provoking question that invites self-reflection on their current cycle and personal agency in shaping their path"
+  "careerLifeFlow": {
+    "timingInsight": "1-2 sentences about life/work rhythm",
+    "alignmentAdvice": "1-2 sentences about moving with the current flow"
+  },
+  "reflectionQuestion": "One gentle but deep self-reflection question"
 }`;
 
     console.log("Calling Lovable AI Gateway...");
