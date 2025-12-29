@@ -46,20 +46,43 @@ export const useQuiz = () => {
     setIsLoading(true);
     setError(null);
 
-    try {
-      const { data, error: fnError } = await supabase.functions.invoke("generate-insight", {
-        body: { answers },
-      });
+    // Mock data for preview mode - Eastern-style insight
+    const mockResult: InsightResult = {
+      lifePhase: {
+        phase: "Growth",
+        description: "You are in a season of expansion and unfolding. Like spring bamboo pushing through soft earth, your energy seeks expression and new form. This is a time of learning, stretching beyond comfort, and discovering latent strengths."
+      },
+      coreIdentity: {
+        dominantEnergy: "Yang",
+        elementalTendency: "Wood",
+        tendencies: [
+          "Drawn to new beginnings and fresh starts",
+          "Natural inclination toward leadership and initiative",
+          "Restless when stagnant, thriving in motion",
+          "Visionary thinking with long-term perspective"
+        ],
+        strengthInsight: "Your inner vitality runs deep like roots seeking water. You possess the resilience to bend without breaking and the vision to see beyond present circumstances. Your strength lies in your ability to initiate and inspire."
+      },
+      focusInsight: {
+        currentTheme: "Cultivating patience while maintaining momentum is your present work.",
+        supportiveActions: [
+          "Begin each day with a moment of stillness before action",
+          "Channel your energy into one primary focus rather than scattering across many",
+          "Seek mentors or wisdom sources that balance your forward drive"
+        ]
+      },
+      careerLifeFlow: {
+        timingInsight: "The current rhythm favors bold moves tempered with strategic pauses. Your professional energy is ascending, making this a fertile period for planting seeds.",
+        alignmentAdvice: "Move with your natural current rather than against it. Trust the timing of your instincts while remaining open to unexpected detours that may reveal hidden paths."
+      },
+      reflectionQuestion: "What would you pursue if you trusted that the timing was already perfect?"
+    };
 
-      if (fnError) throw fnError;
-      
-      setResult(data as InsightResult);
-    } catch (err) {
-      console.error("Error generating insights:", err);
-      setError("Unable to generate your insights. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+    // Simulate loading delay for better UX
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    setResult(mockResult);
+    setIsLoading(false);
   };
 
   const reset = () => {
