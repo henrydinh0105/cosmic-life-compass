@@ -20,16 +20,22 @@ export interface QuizAnswers {
 
 export interface InsightResult {
   lifePhase: {
-    phase: string;
+    phase: "Discovery" | "Growth" | "Harvest" | "Reflection";
     description: string;
   };
   coreIdentity: {
+    dominantEnergy: "Yin" | "Yang" | "Balanced";
+    elementalTendency: "Wood" | "Fire" | "Earth" | "Metal" | "Water";
     tendencies: string[];
-    inclinations: string;
+    strengthInsight: string;
   };
-  careerFinances: {
-    timing: string;
-    opportunities: string;
+  focusInsight: {
+    currentTheme: string;
+    supportiveActions: string[];
+  };
+  careerLifeFlow: {
+    timingInsight: string;
+    alignmentAdvice: string;
   };
   reflectionQuestion: string;
 }
