@@ -7,15 +7,13 @@ const Loading = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // If user directly navigates here without coming from quiz, redirect to start
+  // Fallback: redirect to home if no AI response after 5 seconds
   useEffect(() => {
-    // Check if we came from the quiz
-    const timer = setTimeout(() => {
-      // This page is just for the loading animation
-      // The actual navigation to results happens in Quiz.tsx when result is ready
+    const fallbackTimer = setTimeout(() => {
+      navigate("/");
     }, 5000);
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(fallbackTimer);
   }, [navigate]);
 
   return (
