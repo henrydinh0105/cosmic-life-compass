@@ -1,7 +1,72 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { QuizAnswers, InsightResult } from "@/types/quiz";
 import { quizQuestions } from "@/data/quizQuestions";
-import { supabase } from "@/integrations/supabase/client";
+
+// Fallback Eastern-style insight based on user answers
+const generateFallbackInsight = (answers: QuizAnswers): InsightResult => {
+  // Determine element from birth year
+  const birthYear = answers.birthDate ? new Date(answers.birthDate).getFullYear() : 2000;
+  const lastDigit = birthYear % 10;
+  const elements: Record<number, "Wood" | "Fire" | "Earth" | "Metal" | "Water"> = {
+    0: "Metal", 1: "Metal", 2: "Water", 3: "Water", 4: "Wood",
+    5: "Wood", 6: "Fire", 7: "Fire", 8: "Earth", 9: "Earth"
+  };
+  const element = elements[lastDigit] || "Wood";
+
+  // Determine Yin/Yang from birth time
+  const timeMap: Record<string, "Yin" | "Yang" | "Balanced"> = {
+    morning: "Yang", afternoon: "Yang", evening: "Yin", night: "Yin"
+  };
+  const energy = timeMap[answers.birthTime || "morning"] || "Balanced";
+
+  // Determine life phase from focus answers
+  const focusThemes = [answers.lifeFocus, answers.currentAttention, answers.seekClarity].filter(Boolean);
+  const phaseMap: Record<string, string> = {
+    career: "Growth", relationships: "Harvest", health: "Reflection",
+    creativity: "Discovery", finances: "Harvest", spirituality: "Reflection"
+  };
+  const dominantPhase = focusThemes.length > 0 
+    ? (phaseMap[focusThemes[0] as string] || "Growth")
+    : "Growth";
+
+  const phaseDescriptions: Record<string, string> = {
+    Discovery: "You are in a season of exploration and new beginnings. Like seeds breaking through spring soil, your energy seeks new forms of expression. This is a time for curiosity, experimentation, and planting seeds for future growth.",
+    Growth: "You are in a season of expansion and unfolding. Like spring bamboo pushing through soft earth, your energy seeks expression and new form. This is a time of learning, stretching beyond comfort, and discovering latent strengths.",
+    Harvest: "You are in a season of gathering and consolidation. Like autumn's abundance, your efforts are coming to fruition. This is a time to collect the rewards of past work and share your gifts with others.",
+    Reflection: "You are in a season of introspection and renewal. Like winter's quiet depths, your energy turns inward for restoration. This is a time for contemplation, releasing what no longer serves, and preparing for new cycles."
+  };
+
+  return {
+    lifePhase: {
+      phase: dominantPhase as "Discovery" | "Growth" | "Harvest" | "Reflection",
+      description: phaseDescriptions[dominantPhase]
+    },
+    coreIdentity: {
+      dominantEnergy: energy,
+      elementalTendency: element,
+      tendencies: [
+        "Drawn to new beginnings and fresh starts",
+        "Natural inclination toward thoughtful reflection",
+        "Seeking balance between action and stillness",
+        "Intuitive sense of timing and flow"
+      ],
+      strengthInsight: `Your ${element} nature combined with ${energy} energy creates a unique pattern. You possess the ability to adapt while maintaining your core essence. Your strength lies in your capacity for both action and reflection.`
+    },
+    focusInsight: {
+      currentTheme: "Finding harmony between effort and ease is your present work.",
+      supportiveActions: [
+        "Begin each day with a moment of intentional stillness",
+        "Channel your energy into what truly matters to you",
+        "Trust the natural rhythm of progress and pause"
+      ]
+    },
+    careerLifeFlow: {
+      timingInsight: "The current rhythm supports thoughtful action. Trust your instincts while remaining open to unexpected opportunities.",
+      alignmentAdvice: "Move with your natural current rather than against it. Your choices create your path."
+    },
+    reflectionQuestion: "What would you pursue if you trusted that your timing is already perfect?"
+  };
+};
 
 export const useQuiz = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -33,57 +98,26 @@ export const useQuiz = () => {
     const question = currentQuestion;
     const answer = answers[question.id as keyof QuizAnswers];
     
-    // Optional questions always allow proceeding
     if (question.type === "optional") return true;
-    
-    // Other questions need an answer
     return !!answer;
   };
 
   const isLastStep = currentStep === totalSteps - 1;
 
-  const submitQuiz = async () => {
+  const submitQuiz = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
-    // Mock data for preview mode - Eastern-style insight
-    const mockResult: InsightResult = {
-      lifePhase: {
-        phase: "Growth",
-        description: "You are in a season of expansion and unfolding. Like spring bamboo pushing through soft earth, your energy seeks expression and new form. This is a time of learning, stretching beyond comfort, and discovering latent strengths."
-      },
-      coreIdentity: {
-        dominantEnergy: "Yang",
-        elementalTendency: "Wood",
-        tendencies: [
-          "Drawn to new beginnings and fresh starts",
-          "Natural inclination toward leadership and initiative",
-          "Restless when stagnant, thriving in motion",
-          "Visionary thinking with long-term perspective"
-        ],
-        strengthInsight: "Your inner vitality runs deep like roots seeking water. You possess the resilience to bend without breaking and the vision to see beyond present circumstances. Your strength lies in your ability to initiate and inspire."
-      },
-      focusInsight: {
-        currentTheme: "Cultivating patience while maintaining momentum is your present work.",
-        supportiveActions: [
-          "Begin each day with a moment of stillness before action",
-          "Channel your energy into one primary focus rather than scattering across many",
-          "Seek mentors or wisdom sources that balance your forward drive"
-        ]
-      },
-      careerLifeFlow: {
-        timingInsight: "The current rhythm favors bold moves tempered with strategic pauses. Your professional energy is ascending, making this a fertile period for planting seeds.",
-        alignmentAdvice: "Move with your natural current rather than against it. Trust the timing of your instincts while remaining open to unexpected detours that may reveal hidden paths."
-      },
-      reflectionQuestion: "What would you pursue if you trusted that the timing was already perfect?"
-    };
+    // Generate fallback insight immediately based on user answers
+    const fallbackResult = generateFallbackInsight(answers);
 
-    // Simulate loading delay for better UX
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Short delay for UX, then immediately show result
+    // No external API dependency - always renders
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
-    setResult(mockResult);
+    setResult(fallbackResult);
     setIsLoading(false);
-  };
+  }, [answers]);
 
   const reset = () => {
     setCurrentStep(0);
