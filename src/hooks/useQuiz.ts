@@ -104,19 +104,10 @@ export const useQuiz = () => {
 
   const isLastStep = currentStep === totalSteps - 1;
 
-  const submitQuiz = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    // Generate fallback insight immediately based on user answers
-    const fallbackResult = generateFallbackInsight(answers);
-
-    // Short delay for UX, then immediately show result
-    // No external API dependency - always renders
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setResult(fallbackResult);
-    setIsLoading(false);
+  const submitQuiz = useCallback(() => {
+    // Generate insight immediately - no loading, no async
+    const insight = generateFallbackInsight(answers);
+    setResult(insight);
   }, [answers]);
 
   const reset = () => {

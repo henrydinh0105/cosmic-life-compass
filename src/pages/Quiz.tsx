@@ -34,15 +34,12 @@ const Quiz = () => {
     error,
   } = useQuiz();
 
-  // Navigate to results when we have them - takes priority
+  // Navigate to results immediately when result is set
   useEffect(() => {
     if (result) {
       navigate("/results", { state: { result } });
     }
   }, [result, navigate]);
-
-  // Show loading state in-page instead of navigating away
-  // This keeps the quiz component in control of the flow
 
   const handleNext = () => {
     if (isLastStep) {
