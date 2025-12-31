@@ -14,8 +14,94 @@ interface QuizAnswers {
   seekClarity?: string;
 }
 
+// LOCKED ANALYSIS LOGIC
+// Birth Year → Long-term Elemental Tendency (symbolic, not astrology)
+function getElementalTendency(birthYear: number | null): string {
+  if (!birthYear) return "Balanced across elements";
+  
+  // Symbolic cycle based on last digit (not astrological)
+  const lastDigit = birthYear % 10;
+  const elementMap: Record<number, string> = {
+    0: "Metal", 1: "Metal",
+    2: "Water", 3: "Water",
+    4: "Wood", 5: "Wood",
+    6: "Fire", 7: "Fire",
+    8: "Earth", 9: "Earth",
+  };
+  return elementMap[lastDigit] || "Earth";
+}
+
+// Birth Time → Yin/Yang Orientation
+function getYinYangOrientation(birthTime: string | undefined): string {
+  if (!birthTime) return "Balanced";
+  
+  const timeMap: Record<string, string> = {
+    "morning": "Yang rising", // Active, expansive energy
+    "afternoon": "Yang full", // Peak outward energy
+    "evening": "Yin rising", // Transitioning inward
+    "night": "Yin full", // Reflective, receptive energy
+    "unknown": "Balanced",
+  };
+  return timeMap[birthTime] || "Balanced";
+}
+
+// Repeated choices → Life Phase Weighting
+function analyzeLifePhase(answers: QuizAnswers): { phase: string; focus: string } {
+  const choices = [answers.lifeFocus, answers.currentAttention, answers.seekClarity].filter(Boolean);
+  
+  // Count themes
+  const themes: Record<string, number> = {
+    exploration: 0,
+    growth: 0,
+    stability: 0,
+    reflection: 0,
+  };
+  
+  const themeMapping: Record<string, string> = {
+    // lifeFocus
+    "career": "growth",
+    "relationships": "stability",
+    "personal": "reflection",
+    "balance": "stability",
+    // currentAttention
+    "stability": "stability",
+    "change": "exploration",
+    "growth": "growth",
+    "rest": "reflection",
+    // seekClarity
+    "work": "growth",
+    "love": "stability",
+    "health": "reflection",
+    "purpose": "exploration",
+  };
+  
+  for (const choice of choices) {
+    if (choice && themeMapping[choice]) {
+      themes[themeMapping[choice]]++;
+    }
+  }
+  
+  // Find dominant theme
+  let dominant = "exploration";
+  let maxCount = 0;
+  for (const [theme, count] of Object.entries(themes)) {
+    if (count > maxCount) {
+      maxCount = count;
+      dominant = theme;
+    }
+  }
+  
+  const phaseMap: Record<string, string> = {
+    exploration: "Discovery",
+    growth: "Growth",
+    stability: "Harvest",
+    reflection: "Reflection",
+  };
+  
+  return { phase: phaseMap[dominant], focus: dominant };
+}
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -29,75 +115,85 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Build context from answers
+    // LOCKED ANALYSIS: Extract patterns from inputs
     const birthYear = answers.birthDate ? new Date(answers.birthDate).getFullYear() : null;
     const age = birthYear ? new Date().getFullYear() - birthYear : null;
+    
+    // Apply locked interpretation rules
+    const elementalTendency = getElementalTendency(birthYear);
+    const yinYangOrientation = getYinYangOrientation(answers.birthTime);
+    const lifePhaseAnalysis = analyzeLifePhase(answers);
 
-    const systemPrompt = `You are a calm, grounded Eastern life-pattern advisor. Your wisdom draws from:
+    const systemPrompt = `You are a calm, grounded Eastern life-pattern advisor.
 
-PHILOSOPHICAL FOUNDATIONS:
-- Yin–Yang balance: Understanding opposing yet complementary forces in life
-- Five Elements (Wood, Fire, Earth, Metal, Water): Natural cycles of growth, transformation, stability, refinement, and flow
-- Life cycles and seasonal phases: Recognizing natural rhythms and timing in life
+LOCKED INTERPRETATION FRAMEWORK:
+You MUST use these pre-analyzed patterns as the foundation of your insight:
 
-YOUR APPROACH:
-- Describe tendencies, cycles, inner momentum, and timing—never predict outcomes
-- Emphasize free will and personal choice as the ultimate shapers of one's path
-- Translate Eastern philosophy into practical, actionable life insights
-- Ground abstract concepts in everyday, relatable language
+1. ELEMENTAL TENDENCY: "${elementalTendency}" (derived symbolically from birth year cycle)
+2. YIN-YANG ORIENTATION: "${yinYangOrientation}" (derived from birth time period)
+3. CURRENT LIFE PHASE: "${lifePhaseAnalysis.phase}" (derived from repeated choice patterns)
+4. PHASE FOCUS: "${lifePhaseAnalysis.focus}" (the dominant theme in their selections)
 
-TONE REQUIREMENTS:
-- Calm, grounded, and reflective
-- Modern and psychologically safe
-- Non-religious and non-mystical—practical wisdom only
-- Empowering and supportive
+PHILOSOPHICAL FOUNDATIONS (use metaphorically, not literally):
+- Yin–Yang: Complementary forces—not opposites, but partners in flow
+- Five Elements: Natural patterns of energy movement, not destiny markers
+- Life cycles: Seasons of inner experience, not predetermined paths
 
-FORBIDDEN WORDS (never use):
-- fate, destiny, prophecy, horoscope, fortune, prediction, predetermined, ordained, written in the stars
+CRITICAL RULES:
+- NEVER claim prediction or certainty about outcomes
+- NEVER use: fate, destiny, prophecy, horoscope, fortune, prediction, predetermined, ordained
+- ALWAYS emphasize: The patterns show tendencies, not destinations. Your awareness and choices shape your path.
+- Frame ALL insights as possibilities and invitations, not declarations
+
+TONE:
+- Calm, grounded, reflective
+- Modern, psychologically safe
+- Practical wisdom, not mysticism
+- Empowering personal agency
 
 PREFERRED LANGUAGE:
-- tendency, cycle, phase, rhythm, flow, momentum, timing, pattern, inclination, natural pull, inner movement, seasonal shift, elemental influence, balance, harmony
+- tendency, inclination, natural pull, inner rhythm
+- cycle, phase, seasonal shift, timing
+- flow, momentum, movement, pattern
+- awareness, choice, intention, possibility`;
 
-Always remind the person that their awareness and choices are what truly shape their journey.`;
+    const userPrompt = `Generate personalized life insights using the LOCKED FRAMEWORK provided.
 
-    const userPrompt = `Based on the following information, provide personalized life insights through the lens of Eastern wisdom:
+USER CONTEXT:
+- Age: ${age ? `${age} years` : "Not provided"}
+- Elemental Tendency: ${elementalTendency}
+- Yin-Yang Orientation: ${yinYangOrientation}
+- Current Life Phase: ${lifePhaseAnalysis.phase}
+- Life Focus: ${answers.lifeFocus || "General"}
+- Current Attention: ${answers.currentAttention || "Open"}
+- Seeking Clarity: ${answers.seekClarity || "General direction"}
 
-${age ? `Age: ${age} years old` : "Age: Not provided"}
-Birth Time Period: ${answers.birthTime || "Not specified"} (consider this as an elemental influence on their natural rhythm)
-Energy Expression: ${answers.gender || "Not specified"} (Yin or Yang tendencies)
-Current Life Focus: ${answers.lifeFocus || "General"}
-What Draws Attention: ${answers.currentAttention || "Not specified"}
-Seeking Clarity In: ${answers.seekClarity || "Not specified"}
+Based on the locked framework, weave these patterns into coherent, practical insight.
 
-Analyze their current position through:
-1. Which of the Five Elements (Wood, Fire, Earth, Metal, Water) resonates with their current phase
-2. The Yin-Yang balance in their life focus
-3. The natural seasonal/cyclical timing they're experiencing
-
-Respond with ONLY a valid JSON object in this exact format (no markdown, no explanation):
+Respond with ONLY valid JSON (no markdown):
 {
   "lifePhase": {
-    "phase": "One of: Discovery, Growth, Harvest, Reflection",
-    "description": "2-3 sentences describing the current life phase using cycle and energy language"
+    "phase": "${lifePhaseAnalysis.phase}",
+    "description": "2-3 sentences describing this phase using the elemental tendency and yin-yang orientation. Emphasize this is a current tendency, not a fixed state."
   },
   "coreIdentity": {
-    "dominantEnergy": "One of: Yin, Yang, Balanced",
-    "elementalTendency": "One of: Wood, Fire, Earth, Metal, Water",
-    "tendencies": ["3-4 short phrases describing behavioral or emotional patterns"],
-    "strengthInsight": "2-3 sentences about inner strengths and resources"
+    "dominantEnergy": "${yinYangOrientation.includes('Yang') ? 'Yang' : yinYangOrientation.includes('Yin') ? 'Yin' : 'Balanced'}",
+    "elementalTendency": "${elementalTendency}",
+    "tendencies": ["3-4 short phrases describing natural inclinations based on the element"],
+    "strengthInsight": "2-3 sentences about inner resources, emphasizing these are available potentials, not guarantees"
   },
   "focusInsight": {
-    "currentTheme": "1 sentence summarizing what deserves attention now",
-    "supportiveActions": ["2-3 practical actions aligned with this life phase"]
+    "currentTheme": "1 sentence about what the patterns suggest deserves attention",
+    "supportiveActions": ["2-3 practical actions that align with the current phase"]
   },
   "careerLifeFlow": {
-    "timingInsight": "1-2 sentences about life/work rhythm",
-    "alignmentAdvice": "1-2 sentences about moving with the current flow"
+    "timingInsight": "1-2 sentences about rhythm and timing tendencies",
+    "alignmentAdvice": "1-2 sentences about working with current patterns, emphasizing choice"
   },
-  "reflectionQuestion": "One gentle but deep self-reflection question"
+  "reflectionQuestion": "One question that invites self-awareness, not seeking answers but opening inquiry"
 }`;
 
-    console.log("Calling Lovable AI Gateway...");
+    console.log("Calling Lovable AI with locked analysis framework...");
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -142,10 +238,8 @@ Respond with ONLY a valid JSON object in this exact format (no markdown, no expl
       throw new Error("No content in AI response");
     }
 
-    // Parse the JSON response
     let insight;
     try {
-      // Clean up the response in case there's markdown formatting
       const cleanContent = content.replace(/```json\n?|\n?```/g, "").trim();
       insight = JSON.parse(cleanContent);
     } catch (parseError) {
@@ -153,7 +247,7 @@ Respond with ONLY a valid JSON object in this exact format (no markdown, no expl
       throw new Error("Invalid AI response format");
     }
 
-    console.log("Successfully generated insight");
+    console.log("Successfully generated insight with locked framework");
 
     return new Response(JSON.stringify(insight), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
