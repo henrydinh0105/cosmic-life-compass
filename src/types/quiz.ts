@@ -18,24 +18,24 @@ export interface QuizAnswers {
   seekClarity?: string;
 }
 
+export type BalanceLevel = "Low" | "Moderate" | "Strong";
+
+export interface EnergyDimension {
+  currentState: string;
+  balanceLevel: BalanceLevel;
+  guidance: string;
+}
+
+export interface LifeEnergyMap {
+  achievementResources: EnergyDimension;
+  relationshipsConnection: EnergyDimension;
+  emotionalBalance: EnergyDimension;
+  supportFlow: EnergyDimension;
+  directionVision: EnergyDimension;
+}
+
 export interface InsightResult {
-  lifePhase: {
-    phase: "Discovery" | "Growth" | "Harvest" | "Reflection";
-    description: string;
-  };
-  coreIdentity: {
-    dominantEnergy: "Yin" | "Yang" | "Balanced";
-    elementalTendency: "Wood" | "Fire" | "Earth" | "Metal" | "Water";
-    tendencies: string[];
-    strengthInsight: string;
-  };
-  focusInsight: {
-    currentTheme: string;
-    supportiveActions: string[];
-  };
-  careerLifeFlow: {
-    timingInsight: string;
-    alignmentAdvice: string;
-  };
+  lifeEnergyMap: LifeEnergyMap;
+  overallInsight: string;
   reflectionQuestion: string;
 }
