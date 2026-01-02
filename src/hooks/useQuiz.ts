@@ -1,70 +1,118 @@
 import { useState, useCallback } from "react";
-import { QuizAnswers, InsightResult } from "@/types/quiz";
+import { QuizAnswers, InsightResult, BalanceLevel } from "@/types/quiz";
 import { quizQuestions } from "@/data/quizQuestions";
 
-// Fallback Eastern-style insight based on user answers
-const generateFallbackInsight = (answers: QuizAnswers): InsightResult => {
-  // Determine element from birth year
-  const birthYear = answers.birthDate ? new Date(answers.birthDate).getFullYear() : 2000;
+// Determine element from birth year (Five Elements)
+const getElement = (birthYear: number): "Wood" | "Fire" | "Earth" | "Metal" | "Water" => {
   const lastDigit = birthYear % 10;
   const elements: Record<number, "Wood" | "Fire" | "Earth" | "Metal" | "Water"> = {
     0: "Metal", 1: "Metal", 2: "Water", 3: "Water", 4: "Wood",
     5: "Wood", 6: "Fire", 7: "Fire", 8: "Earth", 9: "Earth"
   };
-  const element = elements[lastDigit] || "Wood";
+  return elements[lastDigit] || "Wood";
+};
 
-  // Determine Yin/Yang from birth time
-  const timeMap: Record<string, "Yin" | "Yang" | "Balanced"> = {
+// Determine Yin/Yang from birth time
+const getEnergy = (birthTime: string | undefined): "Yin" | "Yang" => {
+  const timeMap: Record<string, "Yin" | "Yang"> = {
     morning: "Yang", afternoon: "Yang", evening: "Yin", night: "Yin"
   };
-  const energy = timeMap[answers.birthTime || "morning"] || "Balanced";
+  return timeMap[birthTime || "morning"] || "Yang";
+};
 
-  // Determine life phase from focus answers
-  const focusThemes = [answers.lifeFocus, answers.currentAttention, answers.seekClarity].filter(Boolean);
-  const phaseMap: Record<string, string> = {
-    career: "Growth", relationships: "Harvest", health: "Reflection",
-    creativity: "Discovery", finances: "Harvest", spirituality: "Reflection"
+// Determine balance level based on element and focus alignment
+const getBalanceLevel = (element: string, focus: string | undefined, dimension: string): BalanceLevel => {
+  // Element affinities for each dimension
+  const affinities: Record<string, Record<string, string[]>> = {
+    achievementResources: { strong: ["Metal", "Fire"], moderate: ["Earth", "Wood"], low: ["Water"] },
+    relationshipsConnection: { strong: ["Water", "Wood"], moderate: ["Earth", "Fire"], low: ["Metal"] },
+    emotionalBalance: { strong: ["Earth", "Water"], moderate: ["Metal", "Wood"], low: ["Fire"] },
+    supportFlow: { strong: ["Wood", "Earth"], moderate: ["Water", "Metal"], low: ["Fire"] },
+    directionVision: { strong: ["Fire", "Wood"], moderate: ["Metal", "Water"], low: ["Earth"] }
   };
-  const dominantPhase = focusThemes.length > 0 
-    ? (phaseMap[focusThemes[0] as string] || "Growth")
-    : "Growth";
 
-  const phaseDescriptions: Record<string, string> = {
-    Discovery: "You are in a season of exploration and new beginnings. Like seeds breaking through spring soil, your energy seeks new forms of expression. This is a time for curiosity, experimentation, and planting seeds for future growth.",
-    Growth: "You are in a season of expansion and unfolding. Like spring bamboo pushing through soft earth, your energy seeks expression and new form. This is a time of learning, stretching beyond comfort, and discovering latent strengths.",
-    Harvest: "You are in a season of gathering and consolidation. Like autumn's abundance, your efforts are coming to fruition. This is a time to collect the rewards of past work and share your gifts with others.",
-    Reflection: "You are in a season of introspection and renewal. Like winter's quiet depths, your energy turns inward for restoration. This is a time for contemplation, releasing what no longer serves, and preparing for new cycles."
+  const dimAffinity = affinities[dimension];
+  if (dimAffinity?.strong.includes(element)) return "Strong";
+  if (dimAffinity?.low.includes(element)) return "Low";
+  return "Moderate";
+};
+
+// Generate Life Energy Map insight based on user answers
+const generateFallbackInsight = (answers: QuizAnswers): InsightResult => {
+  const birthYear = answers.birthDate ? new Date(answers.birthDate).getFullYear() : 2000;
+  const element = getElement(birthYear);
+  const energy = getEnergy(answers.birthTime);
+  const focus = answers.lifeFocus || answers.currentAttention || "career";
+
+  // Element descriptions for context
+  const elementQualities: Record<string, string> = {
+    Wood: "growth-oriented and adaptable",
+    Fire: "passionate and transformative",
+    Earth: "stable and nurturing",
+    Metal: "precise and determined",
+    Water: "intuitive and flowing"
   };
+
+  const elementQuality = elementQualities[element];
 
   return {
-    lifePhase: {
-      phase: dominantPhase as "Discovery" | "Growth" | "Harvest" | "Reflection",
-      description: phaseDescriptions[dominantPhase]
+    lifeEnergyMap: {
+      achievementResources: {
+        currentState: energy === "Yang" 
+          ? `Your ${element} nature combined with active Yang energy creates momentum in material pursuits. You have a natural drive toward building and acquiring, though the current flow suggests measured action over aggressive pursuit.`
+          : `Your ${element} nature paired with receptive Yin energy favors a quieter approach to achievement. Resources may come through patience and strategic positioning rather than direct pursuit.`,
+        balanceLevel: getBalanceLevel(element, focus, "achievementResources"),
+        guidance: focus === "career" || focus === "finances"
+          ? "Your current attention aligns with this dimension. Channel your energy into sustainable growth rather than quick gains. Small consistent actions compound over time."
+          : "Consider whether your current focus leaves room for material foundations. Balance spiritual or relational pursuits with practical stability."
+      },
+      relationshipsConnection: {
+        currentState: energy === "Yin"
+          ? `Being ${elementQuality} with Yin energy, you naturally attune to others' emotional currents. Your connections tend toward depth over breadth, quality over quantity.`
+          : `Your ${element} element with Yang energy brings vitality to relationships but may sometimes prioritize action over listening. The current balance suggests openness to receiving as well as giving.`,
+        balanceLevel: getBalanceLevel(element, focus, "relationshipsConnection"),
+        guidance: focus === "relationships"
+          ? "You're already attuned to this dimension. Deepen existing bonds through presence rather than grand gestures. Silence shared can be as connecting as words."
+          : "Relationships thrive on attention. Even brief moments of genuine presence nourish connection. Consider where you might offer more stillness and less doing."
+      },
+      emotionalBalance: {
+        currentState: element === "Water" || element === "Earth"
+          ? `Your ${element} nature provides an inherent anchor for emotional regulation. There is a steadiness available to you, even when external circumstances create turbulence.`
+          : `The ${element} element can bring intensity to your emotional landscape. This is neither good nor bad—simply energy seeking expression. Awareness of these currents helps you navigate rather than be carried.`,
+        balanceLevel: getBalanceLevel(element, focus, "emotionalBalance"),
+        guidance: energy === "Yin"
+          ? "Your receptive energy allows for processing emotions deeply. Honor this by creating space for reflection, but avoid getting lost in introspection. Movement—physical or creative—helps energy flow."
+          : "Active Yang energy may manifest as restlessness when emotions arise. Physical activity, breath work, or nature time can help ground excess energy without suppressing feeling."
+      },
+      supportFlow: {
+        currentState: element === "Wood" || element === "Earth"
+          ? `Your ${element} nature tends to attract supportive circumstances when aligned with its natural rhythm. Like ${element === "Wood" ? "a tree drawing nutrients from soil" : "fertile ground receiving seeds"}, you have capacity to receive what you need.`
+          : `The ${element} element may sometimes create a sense of pushing against resistance. This isn't fate—it's an invitation to examine where flow might be blocked and where effort might be redirected.`,
+        balanceLevel: getBalanceLevel(element, focus, "supportFlow"),
+        guidance: "Notice where life feels effortless versus forced. Ease is often a signal of alignment. When resistance appears, pause before pushing harder—sometimes the path of least resistance leads somewhere better."
+      },
+      directionVision: {
+        currentState: answers.seekClarity
+          ? `Your seeking clarity around ${answers.seekClarity} reflects a natural pull toward understanding your direction. The ${element} element influences how you envision possibility—${element === "Fire" ? "with bold strokes" : element === "Water" ? "with fluid adaptability" : element === "Wood" ? "with organic unfolding" : element === "Metal" ? "with clear precision" : "with grounded practicality"}.`
+          : `Your ${element} nature shapes how vision emerges for you. Rather than forcing clarity, you may find direction reveals itself through ${energy === "Yin" ? "quiet reflection and allowing" : "engaged exploration and testing"}.`,
+        balanceLevel: getBalanceLevel(element, focus, "directionVision"),
+        guidance: "Purpose often clarifies through action rather than thought alone. Take small steps in directions that intrigue you. The path becomes visible by walking, not by standing still and planning."
+      }
     },
-    coreIdentity: {
-      dominantEnergy: energy,
-      elementalTendency: element,
-      tendencies: [
-        "Drawn to new beginnings and fresh starts",
-        "Natural inclination toward thoughtful reflection",
-        "Seeking balance between action and stillness",
-        "Intuitive sense of timing and flow"
-      ],
-      strengthInsight: `Your ${element} nature combined with ${energy} energy creates a unique pattern. You possess the ability to adapt while maintaining your core essence. Your strength lies in your capacity for both action and reflection.`
-    },
-    focusInsight: {
-      currentTheme: "Finding harmony between effort and ease is your present work.",
-      supportiveActions: [
-        "Begin each day with a moment of intentional stillness",
-        "Channel your energy into what truly matters to you",
-        "Trust the natural rhythm of progress and pause"
-      ]
-    },
-    careerLifeFlow: {
-      timingInsight: "The current rhythm supports thoughtful action. Trust your instincts while remaining open to unexpected opportunities.",
-      alignmentAdvice: "Move with your natural current rather than against it. Your choices create your path."
-    },
-    reflectionQuestion: "What would you pursue if you trusted that your timing is already perfect?"
+    overallInsight: `Your ${element} element with ${energy} energy creates a distinct pattern across these five dimensions. ${
+      energy === "Yang" 
+        ? "There is an active, outward-moving quality to your current state—a readiness to engage and create." 
+        : "There is a receptive, inward-turning quality to your current state—a capacity for depth and integration."
+    } No dimension exists in isolation; they influence each other continuously. Where you place attention shapes the whole. These patterns are tendencies, not destinations—awareness allows choice, and choice shapes change.`,
+    reflectionQuestion: focus === "spirituality"
+      ? "What would change if you trusted that you are already exactly where you need to be?"
+      : focus === "relationships"
+      ? "What would you offer to others if you weren't waiting to feel ready?"
+      : focus === "health"
+      ? "What is your body trying to tell you that you haven't been ready to hear?"
+      : focus === "creativity"
+      ? "What would you create if you knew no one would ever see it?"
+      : "What would you pursue if the outcome didn't matter—only the journey?"
   };
 };
 
