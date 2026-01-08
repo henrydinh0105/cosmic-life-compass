@@ -2,117 +2,300 @@ import { useState, useCallback } from "react";
 import { QuizAnswers, InsightResult, BalanceLevel } from "@/types/quiz";
 import { quizQuestions } from "@/data/quizQuestions";
 
-// Determine element from birth year (Five Elements)
-const getElement = (birthYear: number): "Wood" | "Fire" | "Earth" | "Metal" | "Water" => {
-  const lastDigit = birthYear % 10;
-  const elements: Record<number, "Wood" | "Fire" | "Earth" | "Metal" | "Water"> = {
-    0: "Metal", 1: "Metal", 2: "Water", 3: "Water", 4: "Wood",
-    5: "Wood", 6: "Fire", 7: "Fire", 8: "Earth", 9: "Earth"
-  };
-  return elements[lastDigit] || "Wood";
+// ===== TU VI NAM PHAI INTERPRETATION SYSTEM =====
+// Based on classical Vietnamese astrology principles from authoritative sources
+
+// Celestial Stems (Thiên Can) - 10 elements
+const thienCan = ["Giáp", "Ất", "Bính", "Đinh", "Mậu", "Kỷ", "Canh", "Tân", "Nhâm", "Quý"];
+const thienCanElements: Record<string, string> = {
+  "Giáp": "Wood", "Ất": "Wood", "Bính": "Fire", "Đinh": "Fire",
+  "Mậu": "Earth", "Kỷ": "Earth", "Canh": "Metal", "Tân": "Metal",
+  "Nhâm": "Water", "Quý": "Water"
+};
+const thienCanYinYang: Record<string, "Yin" | "Yang"> = {
+  "Giáp": "Yang", "Ất": "Yin", "Bính": "Yang", "Đinh": "Yin",
+  "Mậu": "Yang", "Kỷ": "Yin", "Canh": "Yang", "Tân": "Yin",
+  "Nhâm": "Yang", "Quý": "Yin"
 };
 
-// Determine Yin/Yang from birth time
-const getEnergy = (birthTime: string | undefined): "Yin" | "Yang" => {
-  const timeMap: Record<string, "Yin" | "Yang"> = {
-    morning: "Yang", afternoon: "Yang", evening: "Yin", night: "Yin"
-  };
-  return timeMap[birthTime || "morning"] || "Yang";
+// Earthly Branches (Địa Chi) - 12 positions
+const diaChi = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tị", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
+const diaChiElements: Record<string, string> = {
+  "Tý": "Water", "Sửu": "Earth", "Dần": "Wood", "Mão": "Wood",
+  "Thìn": "Earth", "Tị": "Fire", "Ngọ": "Fire", "Mùi": "Earth",
+  "Thân": "Metal", "Dậu": "Metal", "Tuất": "Earth", "Hợi": "Water"
+};
+const diaChiYinYang: Record<string, "Yin" | "Yang"> = {
+  "Tý": "Yang", "Sửu": "Yin", "Dần": "Yang", "Mão": "Yin",
+  "Thìn": "Yang", "Tị": "Yin", "Ngọ": "Yang", "Mùi": "Yin",
+  "Thân": "Yang", "Dậu": "Yin", "Tuất": "Yang", "Hợi": "Yin"
 };
 
-// Determine balance level based on element and focus alignment
-const getBalanceLevel = (element: string, focus: string | undefined, dimension: string): BalanceLevel => {
-  // Element affinities for each dimension
-  const affinities: Record<string, Record<string, string[]>> = {
-    achievementResources: { strong: ["Metal", "Fire"], moderate: ["Earth", "Wood"], low: ["Water"] },
-    relationshipsConnection: { strong: ["Water", "Wood"], moderate: ["Earth", "Fire"], low: ["Metal"] },
-    emotionalBalance: { strong: ["Earth", "Water"], moderate: ["Metal", "Wood"], low: ["Fire"] },
-    supportFlow: { strong: ["Wood", "Earth"], moderate: ["Water", "Metal"], low: ["Fire"] },
-    directionVision: { strong: ["Fire", "Wood"], moderate: ["Metal", "Water"], low: ["Earth"] }
-  };
-
-  const dimAffinity = affinities[dimension];
-  if (dimAffinity?.strong.includes(element)) return "Strong";
-  if (dimAffinity?.low.includes(element)) return "Low";
-  return "Moderate";
+// Five Elements relationships (Ngũ Hành Sinh Khắc)
+const elementGenerates: Record<string, string> = {
+  Wood: "Fire", Fire: "Earth", Earth: "Metal", Metal: "Water", Water: "Wood"
+};
+const elementOvercomes: Record<string, string> = {
+  Wood: "Earth", Fire: "Metal", Earth: "Water", Metal: "Wood", Water: "Fire"
 };
 
-// Generate Life Energy Map insight based on user answers
+// Get Can Chi of birth year
+const getCanChiYear = (year: number): { can: string; chi: string } => {
+  const canIndex = (year - 4) % 10;
+  const chiIndex = (year - 4) % 12;
+  return { can: thienCan[canIndex], chi: diaChi[chiIndex] };
+};
+
+// Get element from Nap Am (納音) - classical element assignment
+const getNapAmElement = (year: number): string => {
+  const { can, chi } = getCanChiYear(year);
+  // Simplified Nap Am calculation based on 60-year cycle position
+  const cyclePosition = (year - 4) % 60;
+  const napAmGroup = Math.floor(cyclePosition / 2) % 5;
+  const elements = ["Metal", "Fire", "Wood", "Water", "Earth"];
+  return elements[napAmGroup];
+};
+
+// Calculate Menh-Cuc relationship (Mệnh Cục tương sinh/khắc)
+const getMenhCucRelation = (menhElement: string, cucElement: string): "generate" | "generated" | "overcome" | "overcome_by" | "same" => {
+  if (menhElement === cucElement) return "same";
+  if (elementGenerates[menhElement] === cucElement) return "generate"; // Mệnh sinh Cục - very good
+  if (elementGenerates[cucElement] === menhElement) return "generated"; // Cục sinh Mệnh - good
+  if (elementOvercomes[menhElement] === cucElement) return "overcome"; // Mệnh khắc Cục - less favorable
+  return "overcome_by"; // Cục khắc Mệnh - unfavorable
+};
+
+// Birth time to Chi position
+const birthTimeToChiIndex = (birthTime: string): number => {
+  const timeMap: Record<string, number> = {
+    "rat": 0, "ox": 1, "tiger": 2, "rabbit": 3, "dragon": 4, "snake": 5,
+    "horse": 6, "goat": 7, "monkey": 8, "rooster": 9, "dog": 10, "pig": 11,
+    "morning": 3, "afternoon": 6, "evening": 9, "night": 0, "unknown": 6
+  };
+  return timeMap[birthTime] || 6;
+};
+
+// Determine balance level based on Tu Vi principles
+const getBalanceLevel = (
+  yearElement: string, 
+  birthChi: string,
+  focus: string, 
+  dimension: string,
+  gender: string
+): BalanceLevel => {
+  const chiElement = diaChiElements[birthChi] || "Earth";
+  const chiYinYang = diaChiYinYang[birthChi] || "Yang";
+  
+  // Element compatibility matrix based on Tu Vi principles
+  const dimensionElements: Record<string, string[]> = {
+    achievementResources: ["Metal", "Fire"], // Tài Lộc, Quan Lộc
+    relationshipsConnection: ["Water", "Wood"], // Phu Thê, Huynh Đệ
+    emotionalBalance: ["Earth", "Water"], // Phúc Đức, Tật Ách
+    supportFlow: ["Wood", "Earth"], // Thiên Di, Nô Bộc
+    directionVision: ["Fire", "Wood"] // Mệnh, Quan Lộc
+  };
+  
+  const favoredElements = dimensionElements[dimension] || ["Earth"];
+  
+  // Check if year element is favored
+  const elementScore = favoredElements.includes(yearElement) ? 2 : 
+                       favoredElements.includes(chiElement) ? 1 : 0;
+  
+  // Yin-Yang harmony bonus (Dương cư Dương vị, Âm cư Âm vị)
+  const genderYinYang = gender === "male" ? "Yang" : "Yin";
+  const harmonyBonus = genderYinYang === chiYinYang ? 1 : 0;
+  
+  const totalScore = elementScore + harmonyBonus;
+  
+  if (totalScore >= 3) return "Strong";
+  if (totalScore >= 1) return "Moderate";
+  return "Low";
+};
+
+// Generate detailed insight content
 const generateFallbackInsight = (answers: QuizAnswers): InsightResult => {
   const birthYear = answers.birthDate ? new Date(answers.birthDate).getFullYear() : 2000;
-  const element = getElement(birthYear);
-  const energy = getEnergy(answers.birthTime);
+  const { can, chi } = getCanChiYear(birthYear);
+  const napAmElement = getNapAmElement(birthYear);
+  const yearElement = thienCanElements[can];
+  const yearYinYang = thienCanYinYang[can];
+  const chiElement = diaChiElements[chi];
+  const chiYinYang = diaChiYinYang[chi];
+  
+  const birthTimeIndex = birthTimeToChiIndex(answers.birthTime || "morning");
+  const birthChi = diaChi[birthTimeIndex];
+  const gender = answers.gender || "male";
   const focus = answers.lifeFocus || answers.currentAttention || "career";
-
-  // Element descriptions for context
-  const elementQualities: Record<string, string> = {
-    Wood: "growth-oriented and adaptable",
-    Fire: "passionate and transformative",
-    Earth: "stable and nurturing",
-    Metal: "precise and determined",
-    Water: "intuitive and flowing"
+  const seekClarity = answers.seekClarity || "purpose";
+  
+  // Determine Yin-Yang harmony
+  const genderYinYang = gender === "male" ? "Yang" : "Yin";
+  const isHarmonic = genderYinYang === chiYinYang;
+  
+  // Element relationship descriptions
+  const elementQualities: Record<string, { nature: string; strength: string; tendency: string }> = {
+    Wood: { 
+      nature: "growth and expansion", 
+      strength: "adaptability and creativity",
+      tendency: "seek development and new beginnings"
+    },
+    Fire: { 
+      nature: "transformation and illumination", 
+      strength: "passion and decisive action",
+      tendency: "pursue recognition and achievement"
+    },
+    Earth: { 
+      nature: "stability and nurturing", 
+      strength: "reliability and patience",
+      tendency: "build foundations and foster security"
+    },
+    Metal: { 
+      nature: "precision and refinement", 
+      strength: "determination and clarity",
+      tendency: "seek excellence and order"
+    },
+    Water: { 
+      nature: "wisdom and flow", 
+      strength: "intuition and adaptability",
+      tendency: "navigate complexity with grace"
+    }
   };
 
-  const elementQuality = elementQualities[element];
+  const yearQuality = elementQualities[yearElement] || elementQualities.Earth;
+  const napAmQuality = elementQualities[napAmElement] || elementQualities.Earth;
 
   return {
     lifeEnergyMap: {
       achievementResources: {
-        currentState: energy === "Yang" 
-          ? `Your ${element} nature combined with active Yang energy creates momentum in material pursuits. You have a natural drive toward building and acquiring, though the current flow suggests measured action over aggressive pursuit.`
-          : `Your ${element} nature paired with receptive Yin energy favors a quieter approach to achievement. Resources may come through patience and strategic positioning rather than direct pursuit.`,
-        balanceLevel: getBalanceLevel(element, focus, "achievementResources"),
+        currentState: `Your birth pattern carries ${yearElement} energy from the Celestial Stem (${can}), which governs ${yearQuality.nature}. Combined with your ${napAmElement} life essence (Nạp Âm), your approach to material achievement reflects ${napAmQuality.strength}. ${
+          isHarmonic 
+            ? "The harmony between your gender energy and birth position (Dương cư Dương vị / Âm cư Âm vị) creates supportive conditions for pursuing material goals."
+            : "Your energy pattern suggests that achievement may require more deliberate effort, but this builds deeper capability over time."
+        } The ${chi} branch in your birth year connects to ${chiElement} energy, which ${
+          elementGenerates[chiElement] === yearElement 
+            ? "naturally supports and generates your year element—indicating potential for resource accumulation."
+            : elementOvercomes[yearElement] === chiElement
+            ? "receives direction from your year element—suggesting you shape circumstances through active effort."
+            : "interacts with your year element in a balanced way—neither strongly supporting nor challenging material pursuits."
+        }`,
+        balanceLevel: getBalanceLevel(yearElement, birthChi, focus, "achievementResources", gender),
         guidance: focus === "career" || focus === "finances"
-          ? "Your current attention aligns with this dimension. Channel your energy into sustainable growth rather than quick gains. Small consistent actions compound over time."
-          : "Consider whether your current focus leaves room for material foundations. Balance spiritual or relational pursuits with practical stability."
+          ? `Your current focus aligns with this dimension. The ${yearElement} element suggests pursuing achievement through ${yearQuality.tendency.toLowerCase()}. Consider how your natural ${yearQuality.strength.toLowerCase()} can be applied strategically rather than scattered across too many pursuits.`
+          : `While your attention is elsewhere, the ${yearElement} energy still influences your material circumstances. Small, consistent actions aligned with ${yearQuality.nature} will maintain momentum without demanding primary focus.`
       },
       relationshipsConnection: {
-        currentState: energy === "Yin"
-          ? `Being ${elementQuality} with Yin energy, you naturally attune to others' emotional currents. Your connections tend toward depth over breadth, quality over quantity.`
-          : `Your ${element} element with Yang energy brings vitality to relationships but may sometimes prioritize action over listening. The current balance suggests openness to receiving as well as giving.`,
-        balanceLevel: getBalanceLevel(element, focus, "relationshipsConnection"),
+        currentState: `In the realm of connection, your ${yearYinYang} year energy interacts with others according to classical principles of attraction and resonance. ${
+          yearYinYang === "Yin"
+            ? "Yin energy draws connection through receptivity, depth, and emotional attunement. Your relationships tend toward quality over quantity, with capacity for profound understanding."
+            : "Yang energy engages relationships through initiative, warmth, and active presence. You may naturally take the lead in social situations, drawing others through your vitality."
+        } The ${napAmElement} essence of your life pattern adds ${napAmQuality.nature} to your relational style. ${
+          yearElement === "Water" || yearElement === "Wood"
+            ? "Water and Wood elements naturally nourish connection—Water through emotional depth, Wood through growth and flexibility."
+            : yearElement === "Fire"
+            ? "Fire brings warmth and magnetism to relationships, though it requires balance to avoid consuming intensity."
+            : yearElement === "Earth"
+            ? "Earth provides stable ground for relationships, fostering trust and long-term bonds."
+            : "Metal brings clarity and loyalty to relationships, with capacity for deep commitment once trust is established."
+        }`,
+        balanceLevel: getBalanceLevel(yearElement, birthChi, focus, "relationshipsConnection", gender),
         guidance: focus === "relationships"
-          ? "You're already attuned to this dimension. Deepen existing bonds through presence rather than grand gestures. Silence shared can be as connecting as words."
-          : "Relationships thrive on attention. Even brief moments of genuine presence nourish connection. Consider where you might offer more stillness and less doing."
+          ? `With relationships as your current focus, leverage your ${yearElement} nature consciously. ${yearElement === "Water" ? "Create space for emotional depth without losing yourself in others' currents." : yearElement === "Fire" ? "Let your warmth draw others in while ensuring you also receive nurturing." : yearElement === "Wood" ? "Allow relationships to grow organically without forcing development." : yearElement === "Earth" ? "Offer your stability while remaining open to change and surprise." : "Balance your standards with acceptance; not everyone needs to meet your clarity."}`
+          : `Even when not your primary focus, relationships benefit from attention. Your ${yearQuality.strength.toLowerCase()} can be shared with others through small gestures of presence and understanding.`
       },
       emotionalBalance: {
-        currentState: element === "Water" || element === "Earth"
-          ? `Your ${element} nature provides an inherent anchor for emotional regulation. There is a steadiness available to you, even when external circumstances create turbulence.`
-          : `The ${element} element can bring intensity to your emotional landscape. This is neither good nor bad—simply energy seeking expression. Awareness of these currents helps you navigate rather than be carried.`,
-        balanceLevel: getBalanceLevel(element, focus, "emotionalBalance"),
-        guidance: energy === "Yin"
-          ? "Your receptive energy allows for processing emotions deeply. Honor this by creating space for reflection, but avoid getting lost in introspection. Movement—physical or creative—helps energy flow."
-          : "Active Yang energy may manifest as restlessness when emotions arise. Physical activity, breath work, or nature time can help ground excess energy without suppressing feeling."
+        currentState: `Your emotional landscape is shaped by the interplay of ${yearElement} (from ${can}) and ${napAmElement} (your life essence). ${
+          yearElement === "Earth" || yearElement === "Water"
+            ? `These elements naturally support emotional equilibrium. ${yearElement === "Earth" ? "Earth provides grounding, helping you remain centered even in turbulent circumstances." : "Water flows around obstacles rather than confronting them directly, offering resilience through adaptability."}`
+            : yearElement === "Fire"
+            ? "Fire element can bring intensity to emotional experience—both passionate joy and sharp frustration. This is neither flaw nor fate, simply energy seeking expression."
+            : yearElement === "Wood"
+            ? "Wood element brings vitality to emotional life, with capacity for both frustration (when growth is blocked) and enthusiasm (when expanding). Understanding this pattern helps navigation."
+            : "Metal element tends toward clarity in emotions, sometimes experienced as precision or as distance. Both are expressions of the same energy—refinement."
+        } Your ${yearYinYang} orientation ${
+          yearYinYang === "Yin" 
+            ? "inclines toward processing emotions internally, requiring space for reflection and integration."
+            : "inclines toward expressing emotions outwardly, benefiting from appropriate outlets and understanding listeners."
+        }`,
+        balanceLevel: getBalanceLevel(yearElement, birthChi, focus, "emotionalBalance", gender),
+        guidance: `The ${yearElement} element suggests specific paths to emotional balance. ${
+          yearElement === "Wood" ? "Physical movement and time in nature help Wood energy flow rather than stagnate as frustration." 
+          : yearElement === "Fire" ? "Creative expression and social connection give Fire energy positive outlets rather than building internal pressure."
+          : yearElement === "Earth" ? "Routine and grounding practices (mindful eating, gardening, physical touch) reinforce Earth's natural stability."
+          : yearElement === "Metal" ? "Structured reflection (journaling, meditation, organizing) helps Metal energy process and release what no longer serves."
+          : "Water benefits from flow—allowing emotions to move through rather than pooling. Gentle movement, music, and water itself (swimming, baths) support this."
+        }`
       },
       supportFlow: {
-        currentState: element === "Wood" || element === "Earth"
-          ? `Your ${element} nature tends to attract supportive circumstances when aligned with its natural rhythm. Like ${element === "Wood" ? "a tree drawing nutrients from soil" : "fertile ground receiving seeds"}, you have capacity to receive what you need.`
-          : `The ${element} element may sometimes create a sense of pushing against resistance. This isn't fate—it's an invitation to examine where flow might be blocked and where effort might be redirected.`,
-        balanceLevel: getBalanceLevel(element, focus, "supportFlow"),
-        guidance: "Notice where life feels effortless versus forced. Ease is often a signal of alignment. When resistance appears, pause before pushing harder—sometimes the path of least resistance leads somewhere better."
+        currentState: `The concept of support and flow in Eastern philosophy relates to how easily circumstances align with intention. Your ${can} ${chi} birth year creates a pattern of ${
+          isHarmonic 
+            ? "natural harmony (Âm Dương đắc vị), which traditionally indicates that circumstances tend to support rather than obstruct. This doesn't guarantee ease, but suggests less friction with the flow of events."
+            : "creative tension between your core energy and position. This pattern often produces individuals who develop strength through navigating challenge—not obstacles as punishment, but as development."
+        } The ${napAmElement} life essence influences the quality of support you attract: ${
+          napAmElement === "Wood" ? "organic growth, mentorship, opportunities for development"
+          : napAmElement === "Fire" ? "recognition, visibility, connections to influential networks"  
+          : napAmElement === "Earth" ? "stability, reliable foundations, practical resources"
+          : napAmElement === "Metal" ? "structure, clear guidance, refined opportunities"
+          : "intuitive leads, flow states, synchronistic connections"
+        }.`,
+        balanceLevel: getBalanceLevel(yearElement, birthChi, focus, "supportFlow", gender),
+        guidance: `To enhance supportive flow, work with rather than against your ${yearElement} nature. ${
+          yearElement === "Wood" ? "Initiate rather than wait—Wood energy creates opportunity through movement and expression of growth."
+          : yearElement === "Fire" ? "Visibility attracts support for Fire—sharing your light draws resources and connection toward you."
+          : yearElement === "Earth" ? "Patience and reliability build the trust that brings support to Earth—rushed demands may push help away."
+          : yearElement === "Metal" ? "Clarity of intention attracts aligned support for Metal—vague requests receive vague responses."
+          : "Receptivity opens channels for Water—creating space allows what's meant for you to find its way."
+        }`
       },
       directionVision: {
-        currentState: answers.seekClarity
-          ? `Your seeking clarity around ${answers.seekClarity} reflects a natural pull toward understanding your direction. The ${element} element influences how you envision possibility—${element === "Fire" ? "with bold strokes" : element === "Water" ? "with fluid adaptability" : element === "Wood" ? "with organic unfolding" : element === "Metal" ? "with clear precision" : "with grounded practicality"}.`
-          : `Your ${element} nature shapes how vision emerges for you. Rather than forcing clarity, you may find direction reveals itself through ${energy === "Yin" ? "quiet reflection and allowing" : "engaged exploration and testing"}.`,
-        balanceLevel: getBalanceLevel(element, focus, "directionVision"),
-        guidance: "Purpose often clarifies through action rather than thought alone. Take small steps in directions that intrigue you. The path becomes visible by walking, not by standing still and planning."
+        currentState: `Your sense of purpose and direction emerges from the ${yearElement} element's natural ${yearQuality.tendency.toLowerCase()}. The ${can} stem carries ${yearYinYang} orientation, which shapes how vision manifests: ${
+          yearYinYang === "Yang"
+            ? "Yang energy tends toward outward expression—visible goals, public contribution, impact on the world beyond yourself."
+            : "Yin energy tends toward inward depth—personal development, intimate impact, cultivation of inner richness."
+        } Neither is superior; both serve authentic purpose. ${
+          seekClarity === "purpose" 
+            ? `Your current search for clarity around purpose is itself meaningful. The ${yearElement} element suggests that for you, purpose may be discovered through ${yearElement === "Wood" ? "exploration and growth" : yearElement === "Fire" ? "passionate engagement" : yearElement === "Earth" ? "patient cultivation" : yearElement === "Metal" ? "refinement and discernment" : "intuitive following"} rather than rational analysis alone.`
+            : seekClarity === "work"
+            ? `Your attention to work and career direction connects naturally to ${yearElement} energy. Consider whether your current path allows expression of ${yearQuality.nature}.`
+            : `Your focus on ${seekClarity} is itself a direction. The ${yearElement} element's ${yearQuality.strength.toLowerCase()} supports this exploration.`
+        }`,
+        balanceLevel: getBalanceLevel(yearElement, birthChi, focus, "directionVision", gender),
+        guidance: `Direction often becomes clear through movement rather than contemplation alone. Your ${yearElement} nature suggests: ${
+          yearElement === "Wood" ? "Plant seeds in multiple directions and tend what grows. Purpose reveals itself through what thrives."
+          : yearElement === "Fire" ? "Follow what ignites you. Passion is not a distraction from purpose—it's a signal pointing toward it."
+          : yearElement === "Earth" ? "Build where you stand. Often purpose is found not in grand visions but in faithful attention to what's immediately before you."
+          : yearElement === "Metal" ? "Refine through elimination. Clarity comes from releasing what doesn't resonate, revealing what does."
+          : "Trust the current. Your direction may not be visible far ahead, but each next step becomes clear when needed."
+        }`
       }
     },
-    overallInsight: `Your ${element} element with ${energy} energy creates a distinct pattern across these five dimensions. ${
-      energy === "Yang" 
-        ? "There is an active, outward-moving quality to your current state—a readiness to engage and create." 
-        : "There is a receptive, inward-turning quality to your current state—a capacity for depth and integration."
-    } No dimension exists in isolation; they influence each other continuously. Where you place attention shapes the whole. These patterns are tendencies, not destinations—awareness allows choice, and choice shapes change.`,
-    reflectionQuestion: focus === "spirituality"
-      ? "What would change if you trusted that you are already exactly where you need to be?"
-      : focus === "relationships"
-      ? "What would you offer to others if you weren't waiting to feel ready?"
-      : focus === "health"
-      ? "What is your body trying to tell you that you haven't been ready to hear?"
+    overallInsight: `Your birth pattern of ${can} ${chi} (${yearElement} ${yearYinYang}) with ${napAmElement} life essence creates a distinctive energy signature across all five dimensions. ${
+      isHarmonic
+        ? "The harmony between your intrinsic energy and birth position provides a foundation of natural flow."
+        : "The dynamic tension in your pattern builds capability through navigation—your strengths are earned rather than given."
+    } ${
+      yearElement === napAmElement 
+        ? `The alignment of your year element and life essence (both ${yearElement}) creates concentrated energy in this direction—powerful when focused, potentially excessive when unchecked.`
+        : `The interplay between your year element (${yearElement}) and life essence (${napAmElement}) creates richness: ${
+            elementGenerates[yearElement] === napAmElement 
+              ? `${yearElement} generates ${napAmElement}, suggesting your conscious energy naturally supports your deeper life pattern.`
+              : elementGenerates[napAmElement] === yearElement
+              ? `${napAmElement} generates ${yearElement}, suggesting your life essence continuously replenishes your active energy.`
+              : `these elements create a dynamic balance requiring conscious integration.`
+          }`
+    } Remember: these patterns describe tendencies, not destiny. Awareness of your natural flows allows you to work with them skillfully rather than unconsciously.`,
+    reflectionQuestion: seekClarity === "purpose"
+      ? "If you already knew your purpose but had forgotten, what small action would remind you?"
+      : seekClarity === "love"
+      ? "What would you offer in love if you trusted that you are already worthy of receiving it?"
+      : seekClarity === "work"
+      ? "If work were play, what game would you choose?"
+      : seekClarity === "health"
+      ? "What is your body asking for that your mind has been too busy to hear?"
+      : focus === "spirituality"
+      ? "What would change if you trusted that you are exactly where you need to be?"
       : focus === "creativity"
-      ? "What would you create if you knew no one would ever see it?"
-      : "What would you pursue if the outcome didn't matter—only the journey?"
+      ? "What would you create if the only audience were yourself?"
+      : "What becomes possible when you stop waiting to feel ready?"
   };
 };
 
