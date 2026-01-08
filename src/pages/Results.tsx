@@ -15,21 +15,24 @@ import {
   Sparkles
 } from "lucide-react";
 
-const balanceLevelStyles: Record<BalanceLevel, { bg: string; text: string; label: string }> = {
+const balanceLevelStyles: Record<BalanceLevel, { bg: string; text: string; label: string; description: string }> = {
   Low: { 
     bg: "bg-amber-500/20 border-amber-500/30", 
     text: "text-amber-400",
-    label: "Seeking Balance"
+    label: "Seeking Balance",
+    description: "This dimension invites attention and conscious cultivation"
   },
   Moderate: { 
     bg: "bg-blue-500/20 border-blue-500/30", 
     text: "text-blue-400",
-    label: "Flowing"
+    label: "Flowing",
+    description: "Natural movement with room for deepening"
   },
   Strong: { 
     bg: "bg-emerald-500/20 border-emerald-500/30", 
     text: "text-emerald-400",
-    label: "Aligned"
+    label: "Aligned",
+    description: "Natural harmony supporting this life area"
   }
 };
 
@@ -37,31 +40,36 @@ const dimensionConfig = [
   {
     key: "achievementResources" as const,
     title: "Achievement & Resources",
-    subtitle: "Success, career momentum, access to resources",
+    subtitle: "Wealth, Career Momentum, Material Security",
+    description: "Corresponding to Tài Bạch (Finance) and Quan Lộc (Career) sectors in Eastern mapping",
     icon: Coins
   },
   {
     key: "relationshipsConnection" as const,
     title: "Relationships & Connection",
-    subtitle: "Love, friendship, emotional bonds, social harmony",
+    subtitle: "Love, Friendship, Emotional Bonds, Social Harmony",
+    description: "Corresponding to Phu Thê (Spouse), Huynh Đệ (Siblings), and Nô Bộc (Allies) sectors",
     icon: Heart
   },
   {
     key: "emotionalBalance" as const,
     title: "Emotional Balance",
-    subtitle: "Inner stability, calm, emotional regulation",
+    subtitle: "Inner Stability, Calm, Emotional Regulation",
+    description: "Corresponding to Phúc Đức (Ancestral Fortune) and Tật Ách (Health/Karma) sectors",
     icon: Brain
   },
   {
     key: "supportFlow" as const,
     title: "Support & Flow",
-    subtitle: "Protection, ease, supportive circumstances",
+    subtitle: "Protection, Ease, Supportive Circumstances",
+    description: "Corresponding to Thiên Di (Travel/External Relations) and the concept of Lộc Tồn (Natural Fortune)",
     icon: Shield
   },
   {
     key: "directionVision" as const,
     title: "Direction & Vision",
-    subtitle: "Purpose, long-term direction, sense of meaning",
+    subtitle: "Purpose, Long-term Direction, Sense of Meaning",
+    description: "Corresponding to Mệnh (Self/Destiny) and the Tràng Sinh cycle (Life Phases)",
     icon: Compass
   }
 ];
@@ -110,33 +118,53 @@ const Results = () => {
                 delay={200 + index * 150}
               >
                 <div className="space-y-4">
-                  {/* Subtitle */}
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                    {dimension.subtitle}
-                  </p>
-
-                  {/* Balance Level Badge */}
-                  <div className="flex items-center gap-2">
-                    <span className={`px-3 py-1.5 rounded-full border text-sm font-medium ${levelStyle.bg} ${levelStyle.text}`}>
-                      {levelStyle.label}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      ({data.balanceLevel})
-                    </span>
+                  {/* Subtitle & Eastern Context */}
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-foreground/80">
+                      {dimension.subtitle}
+                    </p>
+                    <p className="text-xs text-muted-foreground italic">
+                      {dimension.description}
+                    </p>
                   </div>
 
-                  {/* Current State */}
-                  <p className="text-foreground/90 leading-relaxed">
-                    {data.currentState}
-                  </p>
+                  {/* Balance Level Badge */}
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className={`px-3 py-1.5 rounded-full border text-sm font-medium ${levelStyle.bg} ${levelStyle.text}`}>
+                        {levelStyle.label}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        ({data.balanceLevel})
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {levelStyle.description}
+                    </p>
+                  </div>
+
+                  {/* Current State - Main Analysis */}
+                  <div className="pt-3 border-t border-border/20">
+                    <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                      Current Pattern
+                    </h4>
+                    <p className="text-foreground/90 leading-relaxed text-sm">
+                      {data.currentState}
+                    </p>
+                  </div>
 
                   {/* Guidance */}
-                  <div className="pt-2 border-t border-border/30">
+                  <div className="pt-3 border-t border-border/20">
                     <div className="flex items-start gap-2">
-                      <Sparkles className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
-                      <p className="text-sm text-foreground/80 italic">
-                        {data.guidance}
-                      </p>
+                      <Sparkles className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                          Guidance
+                        </h4>
+                        <p className="text-sm text-foreground/80 leading-relaxed">
+                          {data.guidance}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
