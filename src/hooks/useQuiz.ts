@@ -1,118 +1,85 @@
 import { useState, useCallback } from "react";
 import { QuizAnswers, InsightResult, BalanceLevel } from "@/types/quiz";
 import { quizQuestions } from "@/data/quizQuestions";
+import { lapLaSo } from "@/lib/tuvi/calculations";
+import { TuViInput, TuViChart } from "@/lib/tuvi/types";
+import { gioChiMap } from "@/lib/tuvi/data/canChi";
+import { luanGiaiDimension, generateOverallInsight, generateReflectionQuestion } from "@/lib/tuvi/luanGiai";
 
-// Determine element from birth year (Five Elements)
-const getElement = (birthYear: number): "Wood" | "Fire" | "Earth" | "Metal" | "Water" => {
-  const lastDigit = birthYear % 10;
-  const elements: Record<number, "Wood" | "Fire" | "Earth" | "Metal" | "Water"> = {
-    0: "Metal", 1: "Metal", 2: "Water", 3: "Water", 4: "Wood",
-    5: "Wood", 6: "Fire", 7: "Fire", 8: "Earth", 9: "Earth"
+// Convert quiz answers to TuVi input
+function quizAnswersToTuViInput(answers: QuizAnswers): TuViInput | null {
+  if (!answers.birthDate || !answers.birthHour || !answers.gender) {
+    return null;
+  }
+
+  const date = new Date(answers.birthDate);
+  const gioSinh = gioChiMap[answers.birthHour] || 1;
+
+  return {
+    ngay: date.getDate(),
+    thang: date.getMonth() + 1,
+    nam: date.getFullYear(),
+    gioSinh,
+    gioiTinh: answers.gender === "male" ? 1 : -1,
+    duongLich: answers.calendarType !== "lunar",
+    timeZone: 7,
   };
-  return elements[lastDigit] || "Wood";
+}
+
+// Generate Life Energy Map insight based on Tử Vi chart
+const generateTuViInsight = (chart: TuViChart, answers: QuizAnswers): InsightResult => {
+  return {
+    lifeEnergyMap: {
+      achievementResources: luanGiaiDimension(chart, "achievementResources"),
+      relationshipsConnection: luanGiaiDimension(chart, "relationshipsConnection"),
+      emotionalBalance: luanGiaiDimension(chart, "emotionalBalance"),
+      supportFlow: luanGiaiDimension(chart, "supportFlow"),
+      directionVision: luanGiaiDimension(chart, "directionVision"),
+    },
+    overallInsight: generateOverallInsight(chart),
+    reflectionQuestion: generateReflectionQuestion(chart),
+    tuViChart: chart, // Include chart data for display
+  };
 };
 
-// Determine Yin/Yang from birth time
-const getEnergy = (birthTime: string | undefined): "Yin" | "Yang" => {
-  const timeMap: Record<string, "Yin" | "Yang"> = {
-    morning: "Yang", afternoon: "Yang", evening: "Yin", night: "Yin"
-  };
-  return timeMap[birthTime || "morning"] || "Yang";
-};
-
-// Determine balance level based on element and focus alignment
-const getBalanceLevel = (element: string, focus: string | undefined, dimension: string): BalanceLevel => {
-  // Element affinities for each dimension
-  const affinities: Record<string, Record<string, string[]>> = {
-    achievementResources: { strong: ["Metal", "Fire"], moderate: ["Earth", "Wood"], low: ["Water"] },
-    relationshipsConnection: { strong: ["Water", "Wood"], moderate: ["Earth", "Fire"], low: ["Metal"] },
-    emotionalBalance: { strong: ["Earth", "Water"], moderate: ["Metal", "Wood"], low: ["Fire"] },
-    supportFlow: { strong: ["Wood", "Earth"], moderate: ["Water", "Metal"], low: ["Fire"] },
-    directionVision: { strong: ["Fire", "Wood"], moderate: ["Metal", "Water"], low: ["Earth"] }
-  };
-
-  const dimAffinity = affinities[dimension];
-  if (dimAffinity?.strong.includes(element)) return "Strong";
-  if (dimAffinity?.low.includes(element)) return "Low";
-  return "Moderate";
-};
-
-// Generate Life Energy Map insight based on user answers
+// Fallback insight when Tử Vi calculation fails
 const generateFallbackInsight = (answers: QuizAnswers): InsightResult => {
-  const birthYear = answers.birthDate ? new Date(answers.birthDate).getFullYear() : 2000;
-  const element = getElement(birthYear);
-  const energy = getEnergy(answers.birthTime);
-  const focus = answers.lifeFocus || answers.currentAttention || "career";
-
-  // Element descriptions for context
-  const elementQualities: Record<string, string> = {
-    Wood: "growth-oriented and adaptable",
-    Fire: "passionate and transformative",
-    Earth: "stable and nurturing",
-    Metal: "precise and determined",
-    Water: "intuitive and flowing"
-  };
-
-  const elementQuality = elementQualities[element];
-
+  const focus = answers.lifeFocus || "balance";
+  
   return {
     lifeEnergyMap: {
       achievementResources: {
-        currentState: energy === "Yang" 
-          ? `Your ${element} nature combined with active Yang energy creates momentum in material pursuits. You have a natural drive toward building and acquiring, though the current flow suggests measured action over aggressive pursuit.`
-          : `Your ${element} nature paired with receptive Yin energy favors a quieter approach to achievement. Resources may come through patience and strategic positioning rather than direct pursuit.`,
-        balanceLevel: getBalanceLevel(element, focus, "achievementResources"),
-        guidance: focus === "career" || focus === "finances"
-          ? "Your current attention aligns with this dimension. Channel your energy into sustainable growth rather than quick gains. Small consistent actions compound over time."
-          : "Consider whether your current focus leaves room for material foundations. Balance spiritual or relational pursuits with practical stability."
+        currentState: "Năng lượng về tài lộc và sự nghiệp đang ở trạng thái cân bằng, chờ đợi sự khởi động từ hành động của bạn.",
+        balanceLevel: "Moderate" as BalanceLevel,
+        guidance: "Hãy tập trung vào việc xây dựng nền tảng vững chắc. Thành công bền vững đến từ sự kiên trì."
       },
       relationshipsConnection: {
-        currentState: energy === "Yin"
-          ? `Being ${elementQuality} with Yin energy, you naturally attune to others' emotional currents. Your connections tend toward depth over breadth, quality over quantity.`
-          : `Your ${element} element with Yang energy brings vitality to relationships but may sometimes prioritize action over listening. The current balance suggests openness to receiving as well as giving.`,
-        balanceLevel: getBalanceLevel(element, focus, "relationshipsConnection"),
-        guidance: focus === "relationships"
-          ? "You're already attuned to this dimension. Deepen existing bonds through presence rather than grand gestures. Silence shared can be as connecting as words."
-          : "Relationships thrive on attention. Even brief moments of genuine presence nourish connection. Consider where you might offer more stillness and less doing."
+        currentState: "Các mối quan hệ cần được nuôi dưỡng bằng sự quan tâm và lắng nghe chân thành.",
+        balanceLevel: "Moderate" as BalanceLevel,
+        guidance: "Dành thời gian cho những người quan trọng. Sự hiện diện đôi khi có giá trị hơn lời nói."
       },
       emotionalBalance: {
-        currentState: element === "Water" || element === "Earth"
-          ? `Your ${element} nature provides an inherent anchor for emotional regulation. There is a steadiness available to you, even when external circumstances create turbulence.`
-          : `The ${element} element can bring intensity to your emotional landscape. This is neither good nor bad—simply energy seeking expression. Awareness of these currents helps you navigate rather than be carried.`,
-        balanceLevel: getBalanceLevel(element, focus, "emotionalBalance"),
-        guidance: energy === "Yin"
-          ? "Your receptive energy allows for processing emotions deeply. Honor this by creating space for reflection, but avoid getting lost in introspection. Movement—physical or creative—helps energy flow."
-          : "Active Yang energy may manifest as restlessness when emotions arise. Physical activity, breath work, or nature time can help ground excess energy without suppressing feeling."
+        currentState: "Cảm xúc là năng lượng cần được điều hòa, không phải kiểm soát hay kìm nén.",
+        balanceLevel: "Moderate" as BalanceLevel,
+        guidance: "Tập thở sâu và quan sát cảm xúc mà không phán xét. Đây là bước đầu của tự nhận thức."
       },
       supportFlow: {
-        currentState: element === "Wood" || element === "Earth"
-          ? `Your ${element} nature tends to attract supportive circumstances when aligned with its natural rhythm. Like ${element === "Wood" ? "a tree drawing nutrients from soil" : "fertile ground receiving seeds"}, you have capacity to receive what you need.`
-          : `The ${element} element may sometimes create a sense of pushing against resistance. This isn't fate—it's an invitation to examine where flow might be blocked and where effort might be redirected.`,
-        balanceLevel: getBalanceLevel(element, focus, "supportFlow"),
-        guidance: "Notice where life feels effortless versus forced. Ease is often a signal of alignment. When resistance appears, pause before pushing harder—sometimes the path of least resistance leads somewhere better."
+        currentState: "Sự hỗ trợ thường đến khi ta sẵn sàng đón nhận, không chỉ khi ta cần.",
+        balanceLevel: "Moderate" as BalanceLevel,
+        guidance: "Mở lòng với những cơ hội bất ngờ. Đôi khi giúp đỡ người khác là cách nhận lại nhiều nhất."
       },
       directionVision: {
-        currentState: answers.seekClarity
-          ? `Your seeking clarity around ${answers.seekClarity} reflects a natural pull toward understanding your direction. The ${element} element influences how you envision possibility—${element === "Fire" ? "with bold strokes" : element === "Water" ? "with fluid adaptability" : element === "Wood" ? "with organic unfolding" : element === "Metal" ? "with clear precision" : "with grounded practicality"}.`
-          : `Your ${element} nature shapes how vision emerges for you. Rather than forcing clarity, you may find direction reveals itself through ${energy === "Yin" ? "quiet reflection and allowing" : "engaged exploration and testing"}.`,
-        balanceLevel: getBalanceLevel(element, focus, "directionVision"),
-        guidance: "Purpose often clarifies through action rather than thought alone. Take small steps in directions that intrigue you. The path becomes visible by walking, not by standing still and planning."
+        currentState: "Hướng đi rõ ràng khi ta biết mình là ai và trân trọng điều gì.",
+        balanceLevel: "Moderate" as BalanceLevel,
+        guidance: "Đừng vội vã tìm câu trả lời. Hãy để câu hỏi dẫn dắt bạn khám phá."
       }
     },
-    overallInsight: `Your ${element} element with ${energy} energy creates a distinct pattern across these five dimensions. ${
-      energy === "Yang" 
-        ? "There is an active, outward-moving quality to your current state—a readiness to engage and create." 
-        : "There is a receptive, inward-turning quality to your current state—a capacity for depth and integration."
-    } No dimension exists in isolation; they influence each other continuously. Where you place attention shapes the whole. These patterns are tendencies, not destinations—awareness allows choice, and choice shapes change.`,
-    reflectionQuestion: focus === "spirituality"
-      ? "What would change if you trusted that you are already exactly where you need to be?"
+    overallInsight: "Để có kết quả chính xác hơn, vui lòng cung cấp đầy đủ thông tin ngày sinh, giờ sinh và giới tính. Những xu hướng năng lượng trong Tử Vi Đẩu Số được tính toán dựa trên các yếu tố này.",
+    reflectionQuestion: focus === "career" 
+      ? "Điều gì thực sự quan trọng với bạn trong công việc - thành công hay ý nghĩa?"
       : focus === "relationships"
-      ? "What would you offer to others if you weren't waiting to feel ready?"
-      : focus === "health"
-      ? "What is your body trying to tell you that you haven't been ready to hear?"
-      : focus === "creativity"
-      ? "What would you create if you knew no one would ever see it?"
-      : "What would you pursue if the outcome didn't matter—only the journey?"
+      ? "Bạn đang cho đi hay đang chờ đợi nhận lại trong các mối quan hệ?"
+      : "Nếu không có gì cản trở, bạn sẽ sống khác đi như thế nào?"
   };
 };
 
@@ -153,9 +120,20 @@ export const useQuiz = () => {
   const isLastStep = currentStep === totalSteps - 1;
 
   const submitQuiz = useCallback(() => {
-    // Generate insight immediately - no loading, no async
-    const insight = generateFallbackInsight(answers);
-    setResult(insight);
+    const tuViInput = quizAnswersToTuViInput(answers);
+    if (tuViInput) {
+      try {
+        const chart = lapLaSo(tuViInput);
+        const insight = generateTuViInsight(chart, answers);
+        setResult(insight);
+      } catch {
+        const fallback = generateFallbackInsight(answers);
+        setResult(fallback);
+      }
+    } else {
+      const fallback = generateFallbackInsight(answers);
+      setResult(fallback);
+    }
   }, [answers]);
 
   const reset = () => {
