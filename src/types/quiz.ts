@@ -26,6 +26,12 @@ export interface EnergyDimension {
   guidance: string;
 }
 
+export interface PersonalitySnapshot {
+  coreNature: string;
+  innerTension: string;
+  growthDirection: string;
+}
+
 export interface LifeEnergyMap {
   achievementResources: EnergyDimension;
   relationshipsConnection: EnergyDimension;
@@ -35,6 +41,7 @@ export interface LifeEnergyMap {
 }
 
 export interface InsightResult {
+  personalitySnapshot: PersonalitySnapshot;
   lifeEnergyMap: LifeEnergyMap;
   overallInsight: string;
   reflectionQuestion: string;

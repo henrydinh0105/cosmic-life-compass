@@ -12,7 +12,10 @@ import {
   Compass, 
   MessageCircle, 
   RotateCcw,
-  Sparkles
+  Sparkles,
+  User,
+  Zap,
+  TrendingUp
 } from "lucide-react";
 
 const balanceLevelStyles: Record<BalanceLevel, { bg: string; text: string; label: string; description: string }> = {
@@ -74,6 +77,27 @@ const dimensionConfig = [
   }
 ];
 
+const personalityConfig = [
+  {
+    key: "coreNature" as const,
+    title: "Core Nature",
+    subtitle: "How you tend to think, respond, and make decisions",
+    icon: User
+  },
+  {
+    key: "innerTension" as const,
+    title: "Inner Tension",
+    subtitle: "Common internal conflicts or imbalance patterns",
+    icon: Zap
+  },
+  {
+    key: "growthDirection" as const,
+    title: "Growth Direction",
+    subtitle: "How you develop best when aligned",
+    icon: TrendingUp
+  }
+];
+
 const Results = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -96,15 +120,69 @@ const Results = () => {
         {/* Header */}
         <header className="text-center mb-10">
           <h1 className="text-2xl sm:text-3xl font-serif font-medium mb-2 animate-fade-up">
-            <span className="mystic-text-gradient">Your Life Energy Map</span>
+            <span className="mystic-text-gradient">Your Complete Reading</span>
           </h1>
           <p className="text-muted-foreground animate-fade-up" style={{ animationDelay: "100ms" }}>
-            Five dimensions of your current energetic flow
+            Personality snapshot and life energy dimensions
           </p>
         </header>
 
+        {/* Personality Snapshot Section */}
+        <section className="mb-10">
+          <div className="text-center mb-6 animate-fade-up" style={{ animationDelay: "150ms" }}>
+            <h2 className="text-xl font-serif font-medium text-foreground mb-1">
+              Personality Snapshot
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Your inner nature and energy operation patterns
+            </p>
+          </div>
+
+          <div className="space-y-5">
+            {personalityConfig.map((item, index) => {
+              const Icon = item.icon;
+              const content = result.personalitySnapshot[item.key];
+
+              return (
+                <ResultSection
+                  key={item.key}
+                  title={item.title}
+                  icon={<Icon className="w-5 h-5" />}
+                  delay={200 + index * 100}
+                >
+                  <div className="space-y-3">
+                    <p className="text-sm font-medium text-primary/80">
+                      {item.subtitle}
+                    </p>
+                    <div className="text-foreground/90 leading-relaxed text-sm whitespace-pre-line">
+                      {content}
+                    </div>
+                  </div>
+                </ResultSection>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Divider */}
+        <div className="flex items-center gap-4 my-10 animate-fade-up" style={{ animationDelay: "500ms" }}>
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          <Sparkles className="w-5 h-5 text-primary/60" />
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+        </div>
+
+        {/* Life Energy Map Header */}
+        <div className="text-center mb-6 animate-fade-up" style={{ animationDelay: "550ms" }}>
+          <h2 className="text-xl font-serif font-medium text-foreground mb-1">
+            Life Energy Map
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Five dimensions of your current energetic flow
+          </p>
+        </div>
+
         {/* Life Energy Dimensions */}
-        <div className="space-y-6">
+        <div className="space-y-6" style={{ animationDelay: "600ms" }}>
           {dimensionConfig.map((dimension, index) => {
             const data = result.lifeEnergyMap[dimension.key];
             const Icon = dimension.icon;
@@ -115,7 +193,7 @@ const Results = () => {
                 key={dimension.key}
                 title={dimension.title}
                 icon={<Icon className="w-5 h-5" />}
-                delay={200 + index * 150}
+                delay={650 + index * 100}
               >
                 <div className="space-y-4">
                   {/* Subtitle & Eastern Context */}
@@ -176,7 +254,7 @@ const Results = () => {
           <ResultSection
             title="Overall Pattern"
             icon={<Sparkles className="w-5 h-5" />}
-            delay={950}
+            delay={1200}
           >
             <p className="text-foreground/90 leading-relaxed">
               {result.overallInsight}
@@ -187,7 +265,7 @@ const Results = () => {
           <ResultSection
             title="Reflection"
             icon={<MessageCircle className="w-5 h-5" />}
-            delay={1100}
+            delay={1350}
           >
             <p className="text-lg font-serif italic text-foreground">
               "{result.reflectionQuestion}"
