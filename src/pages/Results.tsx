@@ -1,9 +1,10 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import CosmicBackground from "@/components/CosmicBackground";
 import MysticButton from "@/components/MysticButton";
 import ResultSection from "@/components/ResultSection";
 import { InsightResult, BalanceLevel } from "@/types/quiz";
+import { Input } from "@/components/ui/input";
 import { 
   Coins, 
   Heart, 
@@ -15,7 +16,9 @@ import {
   Sparkles,
   User,
   Zap,
-  TrendingUp
+  TrendingUp,
+  Calendar,
+  Mail
 } from "lucide-react";
 
 const balanceLevelStyles: Record<BalanceLevel, { bg: string; text: string; label: string; description: string }> = {
@@ -102,6 +105,16 @@ const Results = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const result = location.state?.result as InsightResult | undefined;
+  const [email, setEmail] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const handleEmailSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email.trim()) {
+      setIsSubmitted(true);
+      console.log("Email submitted for 2026 guidance:", email);
+    }
+  };
 
   // Redirect if no result
   useEffect(() => {
@@ -273,8 +286,83 @@ const Results = () => {
           </ResultSection>
         </div>
 
+        {/* 2026 Monthly Guidance Email Signup */}
+        <section className="mt-12 animate-fade-up" style={{ animationDelay: "1400ms" }}>
+          <ResultSection
+            title="Understanding Your Rhythm"
+            icon={<Calendar className="w-5 h-5" />}
+            delay={1450}
+          >
+            <div className="space-y-5">
+              {/* Why timing matters */}
+              <div className="space-y-3">
+                <p className="text-foreground/90 leading-relaxed text-sm">
+                  Self-knowledge is one half of wisdom. The other half is timing — understanding 
+                  when to act, when to wait, when to push forward, and when to restore.
+                </p>
+                <p className="text-foreground/80 leading-relaxed text-sm">
+                  In Eastern thought, each month carries its own quality of energy — not as fate, 
+                  but as a rhythm you can learn to move with. Like knowing when the tide rises, 
+                  you can choose when to set sail.
+                </p>
+              </div>
+
+              {/* The invitation */}
+              <div className="pt-4 border-t border-border/20">
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  If you found this reading useful, you may continue with monthly life-cycle 
+                  guidance for 2026 — brief insights on each month's energy patterns, delivered 
+                  at the start of each cycle.
+                </p>
+                <p className="text-xs text-muted-foreground/70 italic mb-5">
+                  This is entirely optional. No predictions. No obligations. Just a gentle 
+                  continuation of awareness.
+                </p>
+
+                {/* Email form */}
+                {!isSubmitted ? (
+                  <form onSubmit={handleEmailSubmit} className="space-y-3">
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        type="email"
+                        placeholder="Your email address"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="pl-10 bg-background/50 border-border/40 focus:border-primary/50"
+                        required
+                      />
+                    </div>
+                    <MysticButton
+                      type="submit"
+                      variant="primary"
+                      size="default"
+                      className="w-full"
+                    >
+                      Receive 2026 Monthly Guidance
+                    </MysticButton>
+                    <p className="text-xs text-center text-muted-foreground/60">
+                      Your privacy is respected. Unsubscribe anytime.
+                    </p>
+                  </form>
+                ) : (
+                  <div className="text-center py-4 px-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                    <Sparkles className="w-5 h-5 text-emerald-400 mx-auto mb-2" />
+                    <p className="text-sm text-emerald-400 font-medium">
+                      You're all set
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Your first monthly guidance will arrive at the start of the cycle.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </ResultSection>
+        </section>
+
         {/* Actions */}
-        <footer className="mt-12 space-y-4 animate-fade-up" style={{ animationDelay: "1250ms" }}>
+        <footer className="mt-10 space-y-4 animate-fade-up" style={{ animationDelay: "1550ms" }}>
           <div className="p-4 rounded-2xl bg-secondary/30 border border-border/30 text-center">
             <p className="text-sm text-muted-foreground">
               This map reflects tendencies and patterns, not fixed outcomes. 
