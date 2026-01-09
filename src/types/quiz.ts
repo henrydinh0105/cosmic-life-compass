@@ -28,6 +28,8 @@ export interface EnergyDimension {
 
 export interface PersonalitySnapshot {
   coreNature: string;
+  naturalStrength: string;
+  blindSpot: string;
   innerTension: string;
   growthDirection: string;
 }
