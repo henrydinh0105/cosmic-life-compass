@@ -18,7 +18,10 @@ import {
   Zap,
   TrendingUp,
   Calendar,
-  Mail
+  Mail,
+  Eye,
+  Scale,
+  Star
 } from "lucide-react";
 
 const balanceLevelStyles: Record<BalanceLevel, { bg: string; text: string; label: string; description: string }> = {
@@ -84,21 +87,41 @@ const personalityConfig = [
   {
     key: "coreNature" as const,
     title: "Core Nature",
-    subtitle: "How you tend to think, respond, and make decisions",
+    subtitle: "How you naturally think, respond, and decide",
     icon: User
+  },
+  {
+    key: "naturalStrength" as const,
+    title: "Natural Strength",
+    subtitle: "Your unfair advantage when aligned",
+    icon: Star
+  },
+  {
+    key: "blindSpot" as const,
+    title: "Blind Spot",
+    subtitle: "Where you unknowingly limit yourself",
+    icon: Eye
   },
   {
     key: "innerTension" as const,
     title: "Inner Tension",
-    subtitle: "Common internal conflicts or imbalance patterns",
-    icon: Zap
+    subtitle: "The internal conflict you often experience",
+    icon: Scale
   },
   {
     key: "growthDirection" as const,
     title: "Growth Direction",
-    subtitle: "How you develop best when aligned",
+    subtitle: "How balance is restored",
     icon: TrendingUp
   }
+];
+
+const recognitionScoreOptions = [
+  { value: 20, label: "20%", description: "Barely resonates" },
+  { value: 40, label: "40%", description: "Somewhat familiar" },
+  { value: 60, label: "60%", description: "Mostly accurate" },
+  { value: 80, label: "80%", description: "Very close" },
+  { value: 100, label: "100%", description: "Uncomfortably accurate" }
 ];
 
 const Results = () => {
@@ -107,6 +130,7 @@ const Results = () => {
   const result = location.state?.result as InsightResult | undefined;
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [recognitionScore, setRecognitionScore] = useState<number | null>(null);
 
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -177,15 +201,56 @@ const Results = () => {
           </div>
         </section>
 
+        {/* Self-Recognition Score */}
+        <section className="mb-10 animate-fade-up" style={{ animationDelay: "700ms" }}>
+          <div className="mystic-card rounded-2xl p-6 space-y-5">
+            <div className="text-center">
+              <h3 className="text-lg font-serif font-medium text-foreground mb-1">
+                Self-Recognition Score
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                How closely this reflection resonates with your lived experience
+              </p>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-2">
+              {recognitionScoreOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setRecognitionScore(option.value)}
+                  className={`
+                    flex flex-col items-center px-4 py-3 rounded-xl border transition-all duration-200
+                    ${recognitionScore === option.value 
+                      ? "bg-primary/20 border-primary/50 text-primary" 
+                      : "bg-secondary/30 border-border/30 hover:border-primary/30 text-foreground/80 hover:text-foreground"
+                    }
+                  `}
+                >
+                  <span className="text-lg font-semibold">{option.label}</span>
+                  <span className="text-xs text-muted-foreground mt-0.5">{option.description}</span>
+                </button>
+              ))}
+            </div>
+
+            {recognitionScore !== null && (
+              <div className="pt-4 border-t border-border/20 text-center animate-fade-up">
+                <p className="text-sm text-foreground/70 italic leading-relaxed">
+                  If this reflection resonates, understanding timing can be just as important as understanding yourself.
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+
         {/* Divider */}
-        <div className="flex items-center gap-4 my-10 animate-fade-up" style={{ animationDelay: "500ms" }}>
+        <div className="flex items-center gap-4 my-10 animate-fade-up" style={{ animationDelay: "750ms" }}>
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
           <Sparkles className="w-5 h-5 text-primary/60" />
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         </div>
 
         {/* Life Energy Map Header */}
-        <div className="text-center mb-6 animate-fade-up" style={{ animationDelay: "550ms" }}>
+        <div className="text-center mb-6 animate-fade-up" style={{ animationDelay: "800ms" }}>
           <h2 className="text-xl font-serif font-medium text-foreground mb-1">
             Life Energy Map
           </h2>
@@ -195,7 +260,7 @@ const Results = () => {
         </div>
 
         {/* Life Energy Dimensions */}
-        <div className="space-y-6" style={{ animationDelay: "600ms" }}>
+        <div className="space-y-6" style={{ animationDelay: "850ms" }}>
           {dimensionConfig.map((dimension, index) => {
             const data = result.lifeEnergyMap[dimension.key];
             const Icon = dimension.icon;
@@ -206,7 +271,7 @@ const Results = () => {
                 key={dimension.key}
                 title={dimension.title}
                 icon={<Icon className="w-5 h-5" />}
-                delay={650 + index * 100}
+                delay={900 + index * 100}
               >
                 <div className="space-y-4">
                   {/* Subtitle & Eastern Context */}
@@ -267,7 +332,7 @@ const Results = () => {
           <ResultSection
             title="Overall Pattern"
             icon={<Sparkles className="w-5 h-5" />}
-            delay={1200}
+            delay={1450}
           >
             <p className="text-foreground/90 leading-relaxed">
               {result.overallInsight}
@@ -278,7 +343,7 @@ const Results = () => {
           <ResultSection
             title="Reflection"
             icon={<MessageCircle className="w-5 h-5" />}
-            delay={1350}
+            delay={1550}
           >
             <p className="text-lg font-serif italic text-foreground">
               "{result.reflectionQuestion}"
@@ -287,11 +352,11 @@ const Results = () => {
         </div>
 
         {/* 2026 Monthly Guidance Email Signup */}
-        <section className="mt-12 animate-fade-up" style={{ animationDelay: "1400ms" }}>
+        <section className="mt-12 animate-fade-up" style={{ animationDelay: "1650ms" }}>
           <ResultSection
             title="Understanding Your Rhythm"
             icon={<Calendar className="w-5 h-5" />}
-            delay={1450}
+            delay={1700}
           >
             <div className="space-y-5">
               {/* Why timing matters */}
@@ -362,7 +427,7 @@ const Results = () => {
         </section>
 
         {/* Actions */}
-        <footer className="mt-10 space-y-4 animate-fade-up" style={{ animationDelay: "1550ms" }}>
+        <footer className="mt-10 space-y-4 animate-fade-up" style={{ animationDelay: "1800ms" }}>
           <div className="p-4 rounded-2xl bg-secondary/30 border border-border/30 text-center">
             <p className="text-sm text-muted-foreground">
               This map reflects tendencies and patterns, not fixed outcomes. 

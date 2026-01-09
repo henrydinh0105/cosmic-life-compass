@@ -168,81 +168,104 @@ const generateFallbackInsight = (answers: QuizAnswers): InsightResult => {
   // ===== PERSONALITY SNAPSHOT =====
   // Based on Tu Vi / Bat Tu principles - describing tendencies, not fixed traits
   
-  const coreNatureDescriptions: Record<string, { thinking: string; responding: string; deciding: string }> = {
+  const coreNatureDescriptions: Record<string, { thinking: string; responding: string; deciding: string; recognition: string }> = {
     Wood: {
       thinking: "Your mind tends toward growth-oriented thinking—seeing potential, pathways, and possibilities where others might see only what currently exists. There is a natural inclination toward planning, envisioning, and strategizing that moves from present reality toward imagined futures.",
       responding: "When facing circumstances, your first response often carries a quality of expansion—seeking to grow through the challenge rather than merely survive it. This can manifest as optimism, but more precisely it is a fundamental orientation toward development and forward movement.",
-      deciding: "Decision-making for you often involves considering growth trajectories: which choice leads to more flourishing, more development, more life? This is neither purely logical nor emotional—it is a form of organic intelligence that senses where vitality wants to flow."
+      deciding: "Decision-making for you often involves considering growth trajectories: which choice leads to more flourishing, more development, more life? This is neither purely logical nor emotional—it is a form of organic intelligence that senses where vitality wants to flow.",
+      recognition: "You might recognize this when you find yourself already planning the next project before the current one is complete, or when 'staying still' feels more exhausting than moving forward."
     },
     Fire: {
       thinking: "Your mental patterns tend toward illumination and transformation—you naturally seek to understand the essence of things, to see clearly, and to share that clarity with others. There is an inherent drive toward making the invisible visible, the confused clear.",
       responding: "Your characteristic response to life carries warmth, intensity, and presence. You engage fully rather than partially, bringing energy and attention that can inspire others or occasionally overwhelm more reserved temperaments.",
-      deciding: "Decisions often emerge through a form of passionate clarity—a sense of rightness that arrives with conviction. You may experience choice not as weighing options but as recognizing which path carries the most fire, the most aliveness."
+      deciding: "Decisions often emerge through a form of passionate clarity—a sense of rightness that arrives with conviction. You may experience choice not as weighing options but as recognizing which path carries the most fire, the most aliveness.",
+      recognition: "You might recognize this when a conversation that excites you leaves you energized while others look drained, or when you realize you've been 'all in' on something before consciously choosing it."
     },
     Earth: {
       thinking: "Your cognitive style gravitates toward the substantial and enduring—understanding how things work, what makes them stable, what creates lasting value. Abstract ideas often need grounding in practical reality before they feel meaningful.",
       responding: "When life presents situations, your natural response carries steadiness. This isn't slowness but rootedness—a capacity to remain centered while others might react impulsively. You provide ground for others to stand on.",
-      deciding: "Decision-making typically involves assessing durability and reliability: what will hold, what can be trusted, what creates security? You build rather than gamble, preferring known foundations to exciting uncertainties."
+      deciding: "Decision-making typically involves assessing durability and reliability: what will hold, what can be trusted, what creates security? You build rather than gamble, preferring known foundations to exciting uncertainties.",
+      recognition: "You might recognize this when others come to you during crises because your presence feels stabilizing, or when you notice your first question about any new idea is 'but how would that actually work?'"
     },
     Metal: {
       thinking: "Your mind inclines toward precision, discernment, and refinement. You naturally distinguish essential from non-essential, separating signal from noise with an efficiency that can seem almost surgical to others.",
       responding: "Your response to circumstances often carries a quality of assessment and judgment—not coldness, but clarity about what is and isn't acceptable, useful, or aligned with standards you hold (often unconsciously).",
-      deciding: "Decisions emerge through a process of elimination—cutting away what doesn't fit until what remains is refined and correct. You tend to know what you don't want before fully articulating what you do."
+      deciding: "Decisions emerge through a process of elimination—cutting away what doesn't fit until what remains is refined and correct. You tend to know what you don't want before fully articulating what you do.",
+      recognition: "You might recognize this when you catch yourself mentally editing someone's work before they've finished explaining it, or when 'good enough' has never quite felt good enough."
     },
     Water: {
       thinking: "Your mental nature moves like water itself—flowing around obstacles, finding the path of least resistance, perceiving depths that surface-focused minds miss. You think in currents and undercurrents, sensing what lies beneath.",
       responding: "When encountering situations, you often respond with adaptation rather than confrontation—not from weakness but from wisdom that recognizes many paths lead to the same sea. Flexibility is your form of strength.",
-      deciding: "Decisions may feel less like choices and more like currents you follow. You sense where things are flowing and align with that movement. Intuition often guides more than analysis."
+      deciding: "Decisions may feel less like choices and more like currents you follow. You sense where things are flowing and align with that movement. Intuition often guides more than analysis.",
+      recognition: "You might recognize this when you 'just knew' something was wrong before any evidence appeared, or when you find yourself absorbing the emotional atmosphere of a room without trying."
     }
+  };
+
+  const naturalStrengthDescriptions: Record<string, string> = {
+    Wood: "Your unfair advantage lies in your capacity for initiation and growth. Where others see finished landscapes, you perceive seeds waiting to sprout. You can envision futures that don't yet exist and take the first steps toward them when others are still deliberating. This isn't mere optimism—it's an organic intelligence that knows how to begin things, how to expand, how to find the growing edge in any situation. When aligned, you naturally inspire others to grow simply by demonstrating that growth is possible.",
+    Fire: "Your unfair advantage is your capacity to illuminate and transform. You have a natural gift for making things visible—whether that's bringing clarity to confusion, recognition to what's been overlooked, or warmth to what's grown cold. Your presence has a catalytic quality; things change when you engage with them. This isn't performance—it's a genuine radiance that emerges when you're aligned with what matters to you. You connect dots others don't see and communicate with an intensity that makes ideas feel alive.",
+    Earth: "Your unfair advantage is your capacity to sustain and nurture. You possess an almost unconscious ability to create conditions where things can grow and flourish over time. Where others burn bright and fade, you persist. Where others build quickly and watch it crumble, you build slowly and watch it last. Your reliability is not boring—it's a superpower in a world that often lacks it. People and projects thrive in your care because you provide the patient, consistent attention that real growth requires.",
+    Metal: "Your unfair advantage is your capacity for discernment and refinement. You naturally perceive quality distinctions that others miss, sensing what's essential and what's merely acceptable. This isn't criticism—it's a form of care that manifests as unwillingness to settle. Your standards become a kind of gravity that pulls everything in your sphere toward greater excellence. When you engage with something, it tends to become cleaner, clearer, more precise. Others may not always appreciate this immediately, but they benefit from it eventually.",
+    Water: "Your unfair advantage is your capacity for depth and flow. You perceive what moves beneath surfaces—motivations, patterns, undercurrents—that others miss entirely. This grants you a form of wisdom that can't be taught: you know without knowing how you know. Your adaptability isn't weakness but intelligence; you find ways through where others hit walls. Your depth creates trust, as others sense that you see and accept them fully. When aligned, you navigate complexity with a grace that seems almost effortless."
+  };
+
+  const blindSpotPatterns: Record<string, string> = {
+    Wood: "Your pattern includes a recurring limitation around patience and completion. The same energy that drives you toward the next horizon can make you restless with what's already planted. You may find yourself starting more than you finish, or mentally leaving projects before they've fully matured. Growth orientation can become growth addiction—a subtle belief that 'there' is better than 'here.' This isn't a moral failing but a structural tendency: your system is calibrated for expansion, which can make consolidation feel like stagnation even when it's necessary.",
+    Fire: "Your pattern includes a recurring limitation around sustainable engagement. The intensity that makes you magnetic can also lead to cycles of burning bright and burning out. You may give fully when inspired, then find yourself depleted and needing to withdraw. There's a tendency to overextend—offering more light than you can sustain, then feeling resentful when the giving feels one-sided. Visibility, while natural to you, comes with costs: others may see your radiance without recognizing the fuel it requires.",
+    Earth: "Your pattern includes a recurring limitation around rigidity and over-accommodation. The stability that makes you reliable can crystallize into resistance to necessary change. You may stay in situations past their expiration because leaving feels like failure or disloyalty. The same nurturing impulse that serves others can neglect yourself—you may know everyone else's needs better than your own. There's a tendency to provide ground for others while forgetting that you also need ground to stand on.",
+    Metal: "Your pattern includes a recurring limitation around criticism and isolation. The discernment that allows you to refine can become chronic dissatisfaction when nothing meets your standards—including yourself. You may find perfectionism masquerading as integrity, or notice that your high standards create distance from others who feel judged even when you're not actively judging. The clarity that serves you can become coldness that costs you connection. Precision, when overextended, becomes a lonely refinement.",
+    Water: "Your pattern includes a recurring limitation around passivity and dissolution. The adaptability that grants you wisdom can become loss of direction—going with every flow until you've lost your own current. You may merge so fully with others or situations that your own needs become unclear even to yourself. Depth without structure can become stagnation; intuition without action remains mere perception. There's a tendency to wait for clarity that never quite arrives because waiting has become more comfortable than choosing."
   };
 
   const innerTensionPatterns: Record<string, { primary: string; secondary: string }> = {
     Wood: {
-      primary: "The fundamental tension within Wood energy is between growth and restraint—the endless drive to expand, develop, and become more can create frustration when circumstances impose limits. This isn't a flaw but a feature of your energetic makeup: the same force that drives ambition can manifest as impatience or frustration when progress feels blocked.",
-      secondary: "A secondary pattern involves the relationship between vision and reality. Your capacity to see potential can create dissatisfaction with what currently exists. Learning to appreciate present conditions while maintaining future orientation is an ongoing balancing act."
+      primary: "The fundamental tension within your pattern lives between vision and patience—between seeing what could be and accepting what is. You experience the pull toward the future as both gift and burden; it drives your growth while making present circumstances feel insufficient. This isn't restlessness to be fixed but a dynamic polarity to be navigated.",
+      secondary: "A secondary tension exists between independence and connection. Your growth impulse wants freedom to expand, yet meaningful development often requires interdependence. You may feel torn between needing space to become and wanting belonging in who you already are."
     },
     Fire: {
-      primary: "The core tension of Fire energy lives between expression and consumption—the same intensity that illuminates can also exhaust. You may find yourself cycling between periods of brilliant engagement and necessary withdrawal, between giving fully and needing to recover what you've given.",
-      secondary: "There can also be tension between visibility and vulnerability. Fire naturally attracts attention, but sustained exposure can feel depleting. Learning when to shine publicly and when to tend your inner flame privately is part of your ongoing development."
+      primary: "The fundamental tension within your pattern lives between expression and sustainability—between giving fully and preserving yourself. Your natural intensity creates a recurring choice: hold back and feel dimmed, or give completely and risk depletion. Neither extreme serves you; the work is finding the sustainable flame.",
+      secondary: "A secondary tension exists between recognition and authenticity. You naturally attract attention, yet not all attention nourishes. You may find yourself performing when you'd rather be genuine, or feeling unseen when you're most truly yourself."
     },
     Earth: {
-      primary: "Earth's essential tension emerges between stability and stagnation—the same qualities that create security and reliability can, when out of balance, become rigidity or resistance to necessary change. Your strength can become your limitation when circumstances require adaptation.",
-      secondary: "A related pattern involves giving and receiving. Earth naturally nurtures and provides, but excessive giving without receiving creates depletion. The challenge is maintaining generosity while also accepting support from others."
+      primary: "The fundamental tension within your pattern lives between stability and growth—between maintaining what you've built and evolving toward what you're becoming. Change can feel like betrayal of what you've established, yet staying the same can become its own form of stagnation. You hold both needs simultaneously.",
+      secondary: "A secondary tension exists between giving and receiving. Your nature provides, nurtures, sustains—yet this same giving can deplete you when not reciprocated. You may struggle to receive with the same grace you extend to others."
     },
     Metal: {
-      primary: "The fundamental tension in Metal energy exists between standards and acceptance—your natural capacity for discernment and refinement can create perpetual dissatisfaction when nothing quite meets your criteria. Perfectionism is the shadow of your precision.",
-      secondary: "There may also be tension between connection and protection. Metal's clear boundaries serve important functions, but excessive boundary-keeping can create isolation. Finding the balance between healthy discrimination and unnecessary distance is ongoing work."
+      primary: "The fundamental tension within your pattern lives between standards and acceptance—between refining toward perfection and making peace with imperfection. Your discernment is both strength and burden; you see flaws that others miss, including flaws in yourself that may not require fixing.",
+      secondary: "A secondary tension exists between protection and connection. Your clarity creates boundaries that serve you, yet those same boundaries can become walls. You may feel the paradox of wanting closeness while maintaining the space that feels safe."
     },
     Water: {
-      primary: "Water's core tension arises between depth and direction—your natural capacity for going deep can sometimes lack corresponding capacity for forward momentum. You may know profound truths but struggle to translate them into consistent action.",
-      secondary: "A related pattern involves boundaries and merging. Water naturally flows into whatever contains it, which can make it difficult to maintain clear sense of self when deeply connected with others. Learning to flow without losing yourself is part of your path."
+      primary: "The fundamental tension within your pattern lives between depth and direction—between understanding everything and deciding anything. Your capacity to perceive complexity can become paralysis when action requires simplification. Wisdom without application remains incomplete.",
+      secondary: "A secondary tension exists between merging and maintaining self. Your natural empathy and adaptability create connection, yet they can also dissolve the boundaries that define who you are apart from what surrounds you."
     }
   };
 
   const growthDirectionPatterns: Record<string, { aligned: string; development: string }> = {
     Wood: {
-      aligned: "When aligned with your nature, you develop through continuous learning, expanding competence, and growing into larger roles and responsibilities. Your path is one of becoming—always evolving toward more complete expression of your potential.",
-      development: "Optimal development for Wood involves channeling expansive energy into focused growth rather than scattered ambition. The tree that grows straight and strong serves better than the one that branches in every direction. Choose your directions consciously, then grow fully in those chosen areas."
+      aligned: "Balance is restored when your growth energy finds appropriate channels—when expansion serves purpose rather than escaping presence. Your development flourishes not by moderating your drive but by directing it wisely. The tree that grows toward light serves its nature; the tree that grows in every direction exhausts itself.",
+      development: "Conditions that support your alignment include: clear vision of where growth serves you, patience as strategic wisdom rather than imposed limitation, and completion as a form of maturity rather than an ending. You develop best when you can see how staying connects to going."
     },
     Fire: {
-      aligned: "Your authentic development path involves bringing warmth, clarity, and inspiration to whatever you touch. When aligned, you illuminate situations, transform understanding, and catalyze positive change in others through your engaged presence.",
-      development: "Sustainable Fire development requires learning to burn steadily rather than in consuming bursts. This means building practices that replenish rather than only expend—creating rather than just performing, connecting deeply rather than spreading thin."
+      aligned: "Balance is restored when your intensity becomes sustainable radiance—when you learn to shine without consuming yourself. Your development flourishes not by dimming but by building reserves that fuel consistent warmth. The fire that burns for decades serves more than the one that blazes and exhausts.",
+      development: "Conditions that support your alignment include: practices that replenish as well as expend, recognition that being seen isn't always serving, and learning to receive the warmth you so naturally give. You develop best when your light nourishes rather than depletes you."
     },
     Earth: {
-      aligned: "When aligned with your essential nature, you develop through building lasting structures—relationships, resources, capabilities—that provide foundation for yourself and others. Your growth is measured not in heights reached but in depths established.",
-      development: "Earth development benefits from conscious attention to flexibility within stability. The most enduring foundations include capacity for adjustment. Your growth edge often involves welcoming appropriate change while maintaining core stability."
+      aligned: "Balance is restored when your stability becomes flexible rather than rigid—when you can hold center while allowing movement. Your development flourishes not by becoming less steady but by including change within your steadiness. The mountain that moves with the ages endures; the one that only resists eventually crumbles.",
+      development: "Conditions that support your alignment include: permission to prioritize your own needs alongside others', recognition that change can serve stability rather than threaten it, and receiving support as gracefully as you give it. You develop best when the ground you provide for others includes solid ground for yourself."
     },
     Metal: {
-      aligned: "Your authentic path involves refinement toward excellence—in skills, understanding, and quality of output. When aligned, you naturally move toward mastery, shedding what's unnecessary and honing what's essential.",
-      development: "Optimal Metal development includes softening alongside sharpening. The sword that only knows how to cut eventually cuts its wielder. Learning when precision serves and when acceptance serves better is part of your evolution."
+      aligned: "Balance is restored when your discernment includes self-compassion—when you can refine without rejecting. Your development flourishes not by lowering standards but by widening the circle of what meets them. The blade that knows when not to cut serves better than one that only knows sharpness.",
+      development: "Conditions that support your alignment include: acceptance as a complement to precision rather than its opposite, connection that survives imperfection, and recognition that excellence sometimes means 'enough.' You develop best when your clarity serves without isolating."
     },
     Water: {
-      aligned: "When flowing in harmony with your nature, you develop through deepening wisdom, strengthening intuition, and expanding capacity to navigate complexity with grace. Your growth is measured in depth of understanding and fluidity of response.",
-      development: "Water development benefits from creating channels for your depth—without direction, water stagnates or floods. Finding appropriate containers (projects, relationships, practices) that give form to your formlessness supports your fullest expression."
+      aligned: "Balance is restored when your depth finds direction—when perception becomes navigation rather than only understanding. Your development flourishes not by becoming less deep but by adding current to your stillness. The water that moves reaches the sea; the water that only pools eventually stagnates.",
+      development: "Conditions that support your alignment include: containment that gives form to your formlessness, action that follows intuition rather than replacing it, and maintaining self while merging with what matters. You develop best when your depth has somewhere to flow."
     }
   };
 
   const coreNature = coreNatureDescriptions[yearElement] || coreNatureDescriptions.Earth;
+  const naturalStrength = naturalStrengthDescriptions[yearElement] || naturalStrengthDescriptions.Earth;
+  const blindSpot = blindSpotPatterns[yearElement] || blindSpotPatterns.Earth;
   const innerTension = innerTensionPatterns[yearElement] || innerTensionPatterns.Earth;
   const growthDirection = growthDirectionPatterns[yearElement] || growthDirectionPatterns.Earth;
 
@@ -260,7 +283,17 @@ const generateFallbackInsight = (answers: QuizAnswers): InsightResult => {
   }.`;
 
   const personalitySnapshot = {
-    coreNature: `${coreNature.thinking} ${yinYangModifier}\n\n${coreNature.responding} ${chiInfluence}\n\n${coreNature.deciding}`,
+    coreNature: `${coreNature.thinking} ${yinYangModifier}\n\n${coreNature.responding} ${chiInfluence}\n\n${coreNature.deciding}\n\n${coreNature.recognition}`,
+    naturalStrength: `${naturalStrength} ${
+      isHarmonic 
+        ? "Your birth pattern's natural harmony amplifies this advantage, making it more accessible and consistent."
+        : "Your birth pattern's dynamic tension means this strength may require more conscious cultivation, but becomes more resilient once developed."
+    }`,
+    blindSpot: `${blindSpot} ${
+      isHarmonic 
+        ? "Your pattern's inherent harmony may soften these tendencies, but doesn't eliminate them."
+        : "Your pattern's dynamic polarity can intensify this limitation, making awareness even more important."
+    }`,
     innerTension: `${innerTension.primary}\n\n${innerTension.secondary} ${
       isHarmonic 
         ? "Your birth pattern's Yin-Yang harmony provides some natural buffer against these tensions."
