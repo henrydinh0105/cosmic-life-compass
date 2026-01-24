@@ -2,14 +2,22 @@ import { useNavigate } from "react-router-dom";
 import CosmicBackground from "@/components/CosmicBackground";
 import MysticButton from "@/components/MysticButton";
 import CircularDiagram from "@/components/CircularDiagram";
+import LanguageSelector from "@/components/LanguageSelector";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Sparkles } from "lucide-react";
 
 const Start = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return (
     <div className="relative min-h-screen flex flex-col">
       <CosmicBackground />
+      
+      {/* Language selector in top right */}
+      <div className="absolute top-4 right-4 z-20">
+        <LanguageSelector />
+      </div>
       
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-12">
         {/* Decorative top element */}
@@ -26,13 +34,11 @@ const Start = () => {
 
           {/* Hero text */}
           <h1 className="text-3xl sm:text-4xl font-serif font-medium mb-4 leading-tight animate-fade-up">
-            <span className="mystic-text-gradient">What phase of life</span>
-            <br />
-            <span className="text-foreground">are you in right now?</span>
+            <span className="mystic-text-gradient">{t('start.title')}</span>
           </h1>
 
           <p className="text-muted-foreground text-lg mb-12 animate-fade-up" style={{ animationDelay: "200ms" }}>
-            Discover the patterns that shape your journey
+            {t('start.subtitle')}
           </p>
 
           {/* CTA Button */}
@@ -41,7 +47,7 @@ const Start = () => {
               size="lg"
               onClick={() => navigate("/quiz")}
             >
-              Begin My Life Insight
+              {t('start.button')}
             </MysticButton>
           </div>
         </div>
