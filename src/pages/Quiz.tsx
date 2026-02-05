@@ -5,8 +5,25 @@ import MysticButton from "@/components/MysticButton";
 import ProgressDots from "@/components/ProgressDots";
 import QuizCard from "@/components/QuizCard";
 import { useQuiz } from "@/hooks/useQuiz";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { ArrowLeft, Calendar, Clock, User, Compass, Eye, Sparkles } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const birthTimeOptions = [
+  { value: "rat", labelKey: "quiz.time.rat", descKey: "quiz.time.rat.desc" },
+  { value: "ox", labelKey: "quiz.time.ox", descKey: "quiz.time.ox.desc" },
+  { value: "tiger", labelKey: "quiz.time.tiger", descKey: "quiz.time.tiger.desc" },
+  { value: "rabbit", labelKey: "quiz.time.rabbit", descKey: "quiz.time.rabbit.desc" },
+  { value: "dragon", labelKey: "quiz.time.dragon", descKey: "quiz.time.dragon.desc" },
+  { value: "snake", labelKey: "quiz.time.snake", descKey: "quiz.time.snake.desc" },
+  { value: "horse", labelKey: "quiz.time.horse", descKey: "quiz.time.horse.desc" },
+  { value: "goat", labelKey: "quiz.time.goat", descKey: "quiz.time.goat.desc" },
+  { value: "monkey", labelKey: "quiz.time.monkey", descKey: "quiz.time.monkey.desc" },
+  { value: "rooster", labelKey: "quiz.time.rooster", descKey: "quiz.time.rooster.desc" },
+  { value: "dog", labelKey: "quiz.time.dog", descKey: "quiz.time.dog.desc" },
+  { value: "pig", labelKey: "quiz.time.pig", descKey: "quiz.time.pig.desc" },
+  { value: "unknown", labelKey: "quiz.time.unknown", descKey: "quiz.time.unknown.desc" },
+];
 
 const iconMap: Record<string, React.ReactNode> = {
   birthDate: <Calendar className="w-5 h-5" />,
@@ -19,6 +36,7 @@ const iconMap: Record<string, React.ReactNode> = {
 
 const Quiz = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const {
     currentStep,
     totalSteps,
@@ -104,21 +122,21 @@ const Quiz = () => {
                 {/* Birth Time Selection */}
                 <div className="pt-4 border-t border-border/30">
                   <p className="text-center text-sm text-muted-foreground mb-3">
-                    What time were you born?
+                    {t('quiz.time.question')}
                   </p>
                   <Select
                     value={answers.birthTime || ""}
                     onValueChange={(value) => updateAnswer("birthTime", value)}
                   >
                     <SelectTrigger className="w-full p-4 h-auto rounded-2xl bg-card/50 border border-border/40 text-foreground">
-                      <SelectValue placeholder="Select birth time..." />
+                      <SelectValue placeholder={t('quiz.time.selectPlaceholder')} />
                     </SelectTrigger>
                     <SelectContent className="max-h-60">
-                      {currentQuestion.options?.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
+                      {birthTimeOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value} className="py-2">
                           <div className="flex flex-col">
-                            <span>{option.label}</span>
-                            <span className="text-xs text-muted-foreground">{option.description}</span>
+                            <span>{t(option.labelKey)}</span>
+                            <span className="text-xs text-muted-foreground">{t(option.descKey)}</span>
                           </div>
                         </SelectItem>
                       ))}
@@ -127,7 +145,7 @@ const Quiz = () => {
                 </div>
                 
                 <p className="text-center text-xs text-muted-foreground pt-2">
-                  Birth date and time help us map your life patterns
+                  {t('quiz.time.helper')}
                 </p>
               </div>
             ) : currentQuestion.type === "date" ? (
