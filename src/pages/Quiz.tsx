@@ -6,6 +6,7 @@ import ProgressDots from "@/components/ProgressDots";
 import QuizCard from "@/components/QuizCard";
 import { useQuiz } from "@/hooks/useQuiz";
 import { ArrowLeft, Calendar, Clock, User, Compass, Eye, Sparkles } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const iconMap: Record<string, React.ReactNode> = {
   birthDate: <Calendar className="w-5 h-5" />,
@@ -90,7 +91,7 @@ const Quiz = () => {
             className="space-y-3 animate-fade-up" 
             style={{ animationDelay: "200ms" }}
           >
-            {currentQuestion.type === "date" ? (
+            {currentQuestion.type === "datetime" ? (
               <div className="space-y-4">
                 <input
                   type="date"
@@ -99,9 +100,45 @@ const Quiz = () => {
                   className="w-full p-4 rounded-2xl bg-card/50 border border-border/40 text-foreground focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all text-center text-lg"
                   max={new Date().toISOString().split("T")[0]}
                 />
-                <p className="text-center text-sm text-muted-foreground">
-                  Your birth date helps us map your life patterns
+                
+                {/* Birth Time Selection */}
+                <div className="pt-4 border-t border-border/30">
+                  <p className="text-center text-sm text-muted-foreground mb-3">
+                    What time were you born?
+                  </p>
+                  <Select
+                    value={answers.birthTime || ""}
+                    onValueChange={(value) => updateAnswer("birthTime", value)}
+                  >
+                    <SelectTrigger className="w-full p-4 h-auto rounded-2xl bg-card/50 border border-border/40 text-foreground">
+                      <SelectValue placeholder="Select birth time..." />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60">
+                      {currentQuestion.options?.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          <div className="flex flex-col">
+                            <span>{option.label}</span>
+                            <span className="text-xs text-muted-foreground">{option.description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <p className="text-center text-xs text-muted-foreground pt-2">
+                  Birth date and time help us map your life patterns
                 </p>
+              </div>
+            ) : currentQuestion.type === "date" ? (
+              <div className="space-y-4">
+                <input
+                  type="date"
+                  value={currentAnswer || ""}
+                  onChange={(e) => updateAnswer(currentQuestion.id, e.target.value)}
+                  className="w-full p-4 rounded-2xl bg-card/50 border border-border/40 text-foreground focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all text-center text-lg"
+                  max={new Date().toISOString().split("T")[0]}
+                />
               </div>
             ) : (
               currentQuestion.options?.map((option) => (

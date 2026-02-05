@@ -1,7 +1,7 @@
 export interface QuizQuestion {
   id: string;
   question: string;
-  type: "select" | "date" | "time" | "optional";
+  type: "select" | "date" | "time" | "optional" | "datetime";
   options?: {
     value: string;
     label: string;
