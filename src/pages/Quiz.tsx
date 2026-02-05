@@ -98,7 +98,7 @@ const Quiz = () => {
 
           {/* Question */}
           <h2 
-            className="text-2xl sm:text-3xl font-serif text-center mb-8 animate-fade-up" 
+            className="text-2xl sm:text-3xl font-serif text-center mb-8 animate-fade-up text-glow" 
             style={{ animationDelay: "100ms" }}
           >
             {currentQuestion.question}
@@ -121,7 +121,7 @@ const Quiz = () => {
                 
                 {/* Birth Time Selection */}
                 <div className="pt-4 border-t border-border/30">
-                  <p className="text-center text-sm text-muted-foreground mb-3">
+                  <p className="text-center text-sm text-foreground/80 mb-3 text-readable">
                     {t('quiz.time.question')}
                   </p>
                   <Select
@@ -135,8 +135,8 @@ const Quiz = () => {
                       {birthTimeOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value} className="py-2">
                           <div className="flex flex-col">
-                            <span>{t(option.labelKey)}</span>
-                            <span className="text-xs text-muted-foreground">{t(option.descKey)}</span>
+                            <span className="font-medium text-foreground">{t(option.labelKey)}</span>
+                            <span className="text-xs text-foreground/70">{t(option.descKey)}</span>
                           </div>
                         </SelectItem>
                       ))}
@@ -144,7 +144,7 @@ const Quiz = () => {
                   </Select>
                 </div>
                 
-                <p className="text-center text-xs text-muted-foreground pt-2">
+                <p className="text-center text-xs text-foreground/60 pt-2 text-readable">
                   {t('quiz.time.helper')}
                 </p>
               </div>
