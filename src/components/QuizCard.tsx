@@ -17,28 +17,31 @@ const QuizCard = ({ label, description, selected, onClick, icon }: QuizCardProps
         "relative w-full p-5 rounded-2xl text-left transition-all duration-300",
         "border backdrop-blur-sm",
         selected
-          ? "border-primary/60 bg-primary/10 shadow-[0_0_20px_hsl(262_80%_50%_/_0.2)]"
-          : "border-border/40 bg-card/50 hover:border-primary/30 hover:bg-card/80"
+          ? "border-primary/80 bg-primary/20 shadow-[0_0_25px_hsl(262_80%_50%_/_0.35)]"
+          : "border-border/50 bg-card/70 hover:border-primary/40 hover:bg-card/90"
       )}
     >
       <div className="flex items-start gap-4">
         {icon && (
           <div className={cn(
             "flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center",
-            selected ? "bg-primary/20 text-primary" : "bg-secondary text-muted-foreground"
+            selected ? "bg-primary/30 text-primary" : "bg-secondary/80 text-foreground/70"
           )}>
             {icon}
           </div>
         )}
         <div className="flex-1 min-w-0">
           <h3 className={cn(
-            "font-medium transition-colors",
-            selected ? "text-foreground" : "text-foreground/90"
+            "font-medium transition-colors text-readable",
+            selected ? "text-foreground" : "text-foreground"
           )}>
             {label}
           </h3>
           {description && (
-            <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+            <p className={cn(
+              "mt-1 text-sm line-clamp-2",
+              selected ? "text-foreground/80" : "text-foreground/60"
+            )}>
               {description}
             </p>
           )}
