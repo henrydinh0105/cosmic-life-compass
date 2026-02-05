@@ -469,6 +469,12 @@ export const useQuiz = () => {
     const answer = answers[question.id as keyof QuizAnswers];
     
     if (question.type === "optional") return true;
+    
+    // For datetime type, both birthDate and birthTime must be filled
+    if (question.type === "datetime") {
+      return !!answers.birthDate && !!answers.birthTime;
+    }
+    
     return !!answer;
   };
 
