@@ -16,7 +16,19 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Download, Search } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
+import { Download, Search, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface EmailSubscriber {
   id: string;
@@ -28,6 +40,7 @@ interface EmailSubscriber {
 interface EmailTableProps {
   data: EmailSubscriber[];
   onExport: () => void;
+  onDelete?: (id: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 const languageLabels: Record<string, string> = {
@@ -40,9 +53,10 @@ const languageLabels: Record<string, string> = {
   tl: "Tagalog"
 };
 
-export const EmailTable = ({ data, onExport }: EmailTableProps) => {
+export const EmailTable = ({ data, onExport, onDelete }: EmailTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [languageFilter, setLanguageFilter] = useState<string>("all");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Get unique languages from data
   const languages = useMemo(() => {
@@ -61,6 +75,20 @@ export const EmailTable = ({ data, onExport }: EmailTableProps) => {
       return matchesSearch && matchesLanguage;
     });
   }, [data, searchTerm, languageFilter]);
+
+  const handleDelete = async (id: string) => {
+    if (!onDelete) return;
+    
+    setDeletingId(id);
+    const result = await onDelete(id);
+    setDeletingId(null);
+
+    if (result.success) {
+      toast.success("Subscriber deleted successfully");
+    } else {
+      toast.error(result.error || "Failed to delete subscriber");
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -109,12 +137,13 @@ export const EmailTable = ({ data, onExport }: EmailTableProps) => {
               <TableHead>Email</TableHead>
               <TableHead>Language</TableHead>
               <TableHead>Subscribed At</TableHead>
+              {onDelete && <TableHead className="w-[80px]">Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={onDelete ? 4 : 3} className="text-center text-muted-foreground py-8">
                   No subscribers found
                 </TableCell>
               </TableRow>
@@ -136,6 +165,40 @@ export const EmailTable = ({ data, onExport }: EmailTableProps) => {
                       minute: "2-digit"
                     })}
                   </TableCell>
+                  {onDelete && (
+                    <TableCell>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            disabled={deletingId === subscriber.id}
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Subscriber</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete <strong>{subscriber.email}</strong>? 
+                              This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(subscriber.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             )}

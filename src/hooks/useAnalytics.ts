@@ -218,6 +218,79 @@ export const useAnalytics = () => {
     link.click();
   }, [subscribers]);
 
+  // Delete a subscriber
+  const deleteSubscriber = useCallback(async (id: string) => {
+    try {
+      const { error: deleteError } = await supabase
+        .from("email_subscribers")
+        .delete()
+        .eq("id", id);
+
+      if (deleteError) throw deleteError;
+
+      // Update local state
+      setSubscribers((prev) => prev.filter((sub) => sub.id !== id));
+      
+      // Update overview stats
+      setOverviewStats((prev) => prev ? {
+        ...prev,
+        totalSubscribers: prev.totalSubscribers - 1
+      } : null);
+
+      return { success: true };
+    } catch (err) {
+      console.error("Error deleting subscriber:", err);
+      return { success: false, error: err instanceof Error ? err.message : "Delete failed" };
+    }
+  }, []);
+
+  // Fetch user roles
+  const fetchUserRoles = useCallback(async () => {
+    try {
+      const { data, error: fetchError } = await supabase
+        .from("user_roles")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (fetchError) throw fetchError;
+      return data || [];
+    } catch (err) {
+      console.error("Error fetching user roles:", err);
+      return [];
+    }
+  }, []);
+
+  // Add user role
+  const addUserRole = useCallback(async (userId: string, role: "admin" | "user") => {
+    try {
+      const { error: insertError } = await supabase
+        .from("user_roles")
+        .insert({ user_id: userId, role });
+
+      if (insertError) throw insertError;
+      return { success: true };
+    } catch (err) {
+      console.error("Error adding user role:", err);
+      return { success: false, error: err instanceof Error ? err.message : "Add failed" };
+    }
+  }, []);
+
+  // Delete user role
+  const deleteUserRole = useCallback(async (id: string) => {
+    try {
+      const { error: deleteError } = await supabase
+        .from("user_roles")
+        .delete()
+        .eq("id", id);
+
+      if (deleteError) throw deleteError;
+      return { success: true };
+    } catch (err) {
+      console.error("Error deleting user role:", err);
+      return { success: false, error: err instanceof Error ? err.message : "Delete failed" };
+    }
+  }, []);
+
   return {
     isLoading,
     error,
@@ -226,6 +299,10 @@ export const useAnalytics = () => {
     subscribers,
     sessionTrends,
     refreshData,
-    exportSubscribersCSV
+    exportSubscribersCSV,
+    deleteSubscriber,
+    fetchUserRoles,
+    addUserRole,
+    deleteUserRole
   };
 };

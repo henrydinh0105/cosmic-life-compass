@@ -14,7 +14,7 @@ import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
 import EmailSubscribers from "./pages/admin/EmailSubscribers";
 import QuizAnalytics from "./pages/admin/QuizAnalytics";
-
+import UserRoles from "./pages/admin/UserRoles";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -35,6 +35,7 @@ const App = () => (
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/subscribers" element={<EmailSubscribers />} />
             <Route path="/admin/analytics" element={<QuizAnalytics />} />
+            <Route path="/admin/roles" element={<UserRoles />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
