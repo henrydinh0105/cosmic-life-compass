@@ -140,7 +140,7 @@ const Quiz = () => {
             className="text-2xl sm:text-3xl font-serif text-center mb-8 animate-fade-up text-glow" 
             style={{ animationDelay: "100ms" }}
           >
-            {currentQuestion.question}
+            {t(`quiz.${currentQuestion.id}`)}
           </h2>
 
           {/* Answer options */}
@@ -198,15 +198,20 @@ const Quiz = () => {
                 />
               </div>
             ) : (
-              currentQuestion.options?.map((option) => (
-                <QuizCard
-                  key={option.value}
-                  label={option.label}
-                  description={option.description}
-                  selected={currentAnswer === option.value}
-                  onClick={() => updateAnswer(currentQuestion.id, option.value)}
-                />
-              ))
+              currentQuestion.options?.map((option) => {
+                // Use translation keys for options based on question id and option value
+                const labelKey = `quiz.${option.value}`;
+                const descKey = `quiz.${option.value}.desc`;
+                return (
+                  <QuizCard
+                    key={option.value}
+                    label={t(labelKey)}
+                    description={t(descKey)}
+                    selected={currentAnswer === option.value}
+                    onClick={() => updateAnswer(currentQuestion.id, option.value)}
+                  />
+                );
+              })
             )}
           </div>
 
@@ -216,7 +221,7 @@ const Quiz = () => {
               onClick={handleNext}
               className="mt-6 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              Skip this question
+              {t('quiz.skip')}
             </button>
           )}
         </div>
@@ -228,7 +233,7 @@ const Quiz = () => {
             disabled={!canProceed()}
             className="w-full"
           >
-            {isLastStep ? "Reveal My Insights" : "Continue"}
+            {isLastStep ? t('quiz.submit') : t('quiz.next')}
           </MysticButton>
           
           {error && (
