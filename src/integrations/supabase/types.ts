@@ -119,6 +119,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      search_users_by_email: {
+        Args: { search_term: string }
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "user"
