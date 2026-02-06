@@ -1,6 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { QuizAnswers, InsightResult, BalanceLevel } from "@/types/quiz";
 import { quizQuestions } from "@/data/quizQuestions";
+import { useQuizTracking } from "@/hooks/useQuizTracking";
 
 // ===== TU VI NAM PHAI INTERPRETATION SYSTEM =====
 // Based on classical Vietnamese astrology principles from authoritative sources
@@ -444,12 +445,25 @@ export const useQuiz = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<InsightResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [sessionCreated, setSessionCreated] = useState(false);
+
+  const { createSession, trackAnswer, completeSession, resetSession } = useQuizTracking();
 
   const totalSteps = quizQuestions.length;
   const currentQuestion = quizQuestions[currentStep];
 
+  // Create session on first step
+  useEffect(() => {
+    if (currentStep === 0 && !sessionCreated) {
+      createSession();
+      setSessionCreated(true);
+    }
+  }, [currentStep, sessionCreated, createSession]);
+
   const updateAnswer = (questionId: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
+    // Track answer to database
+    trackAnswer(questionId, value);
   };
 
   const goNext = () => {
@@ -484,7 +498,9 @@ export const useQuiz = () => {
     // Generate insight immediately - no loading, no async
     const insight = generateFallbackInsight(answers);
     setResult(insight);
-  }, [answers]);
+    // Mark session as completed
+    completeSession();
+  }, [answers, completeSession]);
 
   const reset = () => {
     setCurrentStep(0);
@@ -492,6 +508,8 @@ export const useQuiz = () => {
     setResult(null);
     setError(null);
     setIsLoading(false);
+    setSessionCreated(false);
+    resetSession();
   };
 
   return {

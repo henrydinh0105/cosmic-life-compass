@@ -1,10 +1,12 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import CosmicBackground from "@/components/CosmicBackground";
 import MysticButton from "@/components/MysticButton";
 import ResultSection from "@/components/ResultSection";
 import { InsightResult, BalanceLevel } from "@/types/quiz";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { 
   Coins, 
   Heart, 
@@ -127,17 +129,43 @@ const recognitionScoreOptions = [
 const Results = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { language } = useLanguage();
   const result = location.state?.result as InsightResult | undefined;
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [recognitionScore, setRecognitionScore] = useState<number | null>(null);
   const [isEntering, setIsEntering] = useState(true);
+  const emailSubmittedRef = useRef(false);
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) {
-      setIsSubmitted(true);
-      console.log("Email submitted for 2026 guidance:", email);
+    if (email.trim() && !emailSubmittedRef.current) {
+      setIsSubmitting(true);
+      emailSubmittedRef.current = true;
+      
+      try {
+        const { error } = await supabase
+          .from("email_subscribers")
+          .insert({
+            email: email.trim(),
+            language: language
+          });
+
+        if (error) {
+          // If duplicate email, still show success
+          if (error.code !== "23505") {
+            console.error("Error saving email:", error);
+          }
+        }
+        
+        setIsSubmitted(true);
+      } catch (err) {
+        console.error("Failed to save email:", err);
+        setIsSubmitted(true); // Still show success to user
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -411,6 +439,7 @@ const Results = () => {
                         onChange={(e) => setEmail(e.target.value)}
                         className="pl-10 bg-background/50 border-border/40 focus:border-primary/50"
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
                     <MysticButton
@@ -418,17 +447,18 @@ const Results = () => {
                       variant="primary"
                       size="default"
                       className="w-full"
+                      disabled={isSubmitting}
                     >
-                      Receive 2026 Monthly Guidance
+                      {isSubmitting ? "Saving..." : "Receive 2026 Monthly Guidance"}
                     </MysticButton>
                     <p className="text-xs text-center text-muted-foreground/60">
                       Your privacy is respected. Unsubscribe anytime.
                     </p>
                   </form>
                 ) : (
-                  <div className="text-center py-4 px-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                    <Sparkles className="w-5 h-5 text-emerald-400 mx-auto mb-2" />
-                    <p className="text-sm text-emerald-400 font-medium">
+                  <div className="text-center py-4 px-3 rounded-xl bg-primary/10 border border-primary/20">
+                    <Sparkles className="w-5 h-5 text-primary mx-auto mb-2" />
+                    <p className="text-sm text-primary font-medium">
                       You're all set
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">

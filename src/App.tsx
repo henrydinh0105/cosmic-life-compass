@@ -10,6 +10,10 @@ import Loading from "./pages/Loading";
 import Results from "./pages/Results";
 import TuViDemo from "./pages/TuViDemo";
 import NotFound from "./pages/NotFound";
+import AdminLogin from "./pages/admin/Login";
+import AdminDashboard from "./pages/admin/Dashboard";
+import EmailSubscribers from "./pages/admin/EmailSubscribers";
+import QuizAnalytics from "./pages/admin/QuizAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +30,11 @@ const App = () => (
             <Route path="/loading" element={<Loading />} />
             <Route path="/results" element={<Results />} />
             <Route path="/tuvi" element={<TuViDemo />} />
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/subscribers" element={<EmailSubscribers />} />
+            <Route path="/admin/analytics" element={<QuizAnalytics />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
