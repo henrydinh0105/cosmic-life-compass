@@ -57,7 +57,15 @@ export type Database = {
           question_id?: string
           session_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_quiz_answers_session"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_sessions"
+            referencedColumns: ["session_id"]
+          },
+        ]
       }
       quiz_sessions: {
         Row: {
