@@ -161,7 +161,13 @@ const translations: Record<string, string> = {
   // Loading
   'loading.title': 'Analyzing your patterns...',
   'loading.subtitle': 'Consulting Eastern wisdom',
-  
+  'loading.message.1': 'Analyzing your birth energy…',
+  'loading.message.2': 'Searching for corresponding cosmic patterns…',
+  'loading.message.3': 'Synchronizing with life rhythms…',
+  'loading.message.4': 'Discovering hidden tendencies…',
+  'loading.message.5': 'Completing your inner portrait…',
+  'loading.complete': 'complete',
+
   // Common
   'common.loading': 'Loading...',
   'common.error': 'Something went wrong',

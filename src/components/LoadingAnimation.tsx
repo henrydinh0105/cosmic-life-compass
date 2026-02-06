@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
-
-const loadingMessages = [
-  "Đang phân tích năng lượng sinh nhật của bạn…",
-  "Tìm kiếm mô hình vũ trụ tương ứng…",
-  "Đồng bộ với nhịp điệu cuộc sống…",
-  "Khám phá xu hướng tiềm ẩn…",
-  "Hoàn thiện bức tranh nội tâm…",
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const LoadingAnimation = () => {
+  const { t } = useLanguage();
+  
+  const loadingMessages = [
+    t('loading.message.1'),
+    t('loading.message.2'),
+    t('loading.message.3'),
+    t('loading.message.4'),
+    t('loading.message.5'),
+  ];
   const [messageIndex, setMessageIndex] = useState(0);
   const [particles, setParticles] = useState<Array<{ id: number; x: number; delay: number }>>([]);
 
