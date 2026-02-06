@@ -47,89 +47,89 @@ const balanceLevelStyles: Record<BalanceLevel, { bg: string; text: string; label
   }
 };
 
-const dimensionConfig = [
+const dimensionConfigKeys = [
   {
     key: "achievementResources" as const,
-    title: "Achievement & Resources",
-    subtitle: "Wealth, Career Momentum, Material Security",
-    description: "Corresponding to Tài Bạch (Finance) and Quan Lộc (Career) sectors in Eastern mapping",
+    titleKey: "results.achievement",
+    subtitleKey: "results.achievement.subtitle",
+    descriptionKey: "results.achievement.context",
     icon: Coins
   },
   {
     key: "relationshipsConnection" as const,
-    title: "Relationships & Connection",
-    subtitle: "Love, Friendship, Emotional Bonds, Social Harmony",
-    description: "Corresponding to Phu Thê (Spouse), Huynh Đệ (Siblings), and Nô Bộc (Allies) sectors",
+    titleKey: "results.connection",
+    subtitleKey: "results.connection.subtitle",
+    descriptionKey: "results.connection.context",
     icon: Heart
   },
   {
     key: "emotionalBalance" as const,
-    title: "Emotional Balance",
-    subtitle: "Inner Stability, Calm, Emotional Regulation",
-    description: "Corresponding to Phúc Đức (Ancestral Fortune) and Tật Ách (Health/Karma) sectors",
+    titleKey: "results.emotional",
+    subtitleKey: "results.emotional.subtitle",
+    descriptionKey: "results.emotional.context",
     icon: Brain
   },
   {
     key: "supportFlow" as const,
-    title: "Support & Flow",
-    subtitle: "Protection, Ease, Supportive Circumstances",
-    description: "Corresponding to Thiên Di (Travel/External Relations) and the concept of Lộc Tồn (Natural Fortune)",
+    titleKey: "results.support",
+    subtitleKey: "results.support.subtitle",
+    descriptionKey: "results.support.context",
     icon: Shield
   },
   {
     key: "directionVision" as const,
-    title: "Direction & Vision",
-    subtitle: "Purpose, Long-term Direction, Sense of Meaning",
-    description: "Corresponding to Mệnh (Self/Destiny) and the Tràng Sinh cycle (Life Phases)",
+    titleKey: "results.direction",
+    subtitleKey: "results.direction.subtitle",
+    descriptionKey: "results.direction.context",
     icon: Compass
   }
 ];
 
-const personalityConfig = [
+const personalityConfigKeys = [
   {
     key: "coreNature" as const,
-    title: "Core Nature",
-    subtitle: "How you naturally think, respond, and decide",
+    titleKey: "results.coreNature",
+    subtitleKey: "results.coreNature.subtitle",
     icon: User
   },
   {
     key: "naturalStrength" as const,
-    title: "Natural Strength",
-    subtitle: "Your unfair advantage when aligned",
+    titleKey: "results.naturalStrength",
+    subtitleKey: "results.naturalStrength.subtitle",
     icon: Star
   },
   {
     key: "blindSpot" as const,
-    title: "Blind Spot",
-    subtitle: "Where you unknowingly limit yourself",
+    titleKey: "results.blindSpot",
+    subtitleKey: "results.blindSpot.subtitle",
     icon: Eye
   },
   {
     key: "innerTension" as const,
-    title: "Inner Tension",
-    subtitle: "The internal conflict you often experience",
+    titleKey: "results.innerTension",
+    subtitleKey: "results.innerTension.subtitle",
     icon: Scale
   },
   {
     key: "growthDirection" as const,
-    title: "Growth Direction",
-    subtitle: "How balance is restored",
+    titleKey: "results.growthDirection",
+    subtitleKey: "results.growthDirection.subtitle",
     icon: TrendingUp
   }
 ];
 
-const recognitionScoreOptions = [
-  { value: 20, label: "20%", description: "Barely resonates" },
-  { value: 40, label: "40%", description: "Somewhat familiar" },
-  { value: 60, label: "60%", description: "Mostly accurate" },
-  { value: 80, label: "80%", description: "Very close" },
-  { value: 100, label: "100%", description: "Uncomfortably accurate" }
+const getRecognitionScoreOptions = (t: (key: string) => string) => [
+  { value: 20, label: "20%", description: t('results.recognition.20') },
+  { value: 40, label: "40%", description: t('results.recognition.40') },
+  { value: 60, label: "60%", description: t('results.recognition.60') },
+  { value: 80, label: "80%", description: t('results.recognition.80') },
+  { value: 100, label: "100%", description: t('results.recognition.100') }
 ];
 
 const Results = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const result = location.state?.result as InsightResult | undefined;
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -200,10 +200,10 @@ const Results = () => {
             <Sparkles className="w-8 h-8 text-primary mx-auto mb-4 animate-breathe" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif font-medium mb-2 animate-slide-up-fade">
-            <span className="mystic-text-gradient">Your Complete Reading</span>
+            <span className="mystic-text-gradient">{t('results.title')}</span>
           </h1>
           <p className="text-muted-foreground animate-slide-up-fade" style={{ animationDelay: "200ms" }}>
-            Personality snapshot and life energy dimensions
+            {t('results.subtitle')}
           </p>
         </header>
 
@@ -211,28 +211,28 @@ const Results = () => {
         <section className="mb-10">
           <div className="text-center mb-6 animate-fade-up" style={{ animationDelay: "150ms" }}>
             <h2 className="text-xl font-serif font-medium text-foreground mb-1">
-              Personality Snapshot
+              {t('results.personality')}
             </h2>
             <p className="text-sm text-muted-foreground">
-              Your inner nature and energy operation patterns
+              {t('results.personality.subtitle')}
             </p>
           </div>
 
           <div className="space-y-5">
-            {personalityConfig.map((item, index) => {
+            {personalityConfigKeys.map((item, index) => {
               const Icon = item.icon;
               const content = result.personalitySnapshot[item.key];
 
               return (
                 <ResultSection
                   key={item.key}
-                  title={item.title}
+                  title={t(item.titleKey)}
                   icon={<Icon className="w-5 h-5" />}
                   delay={200 + index * 100}
                 >
                   <div className="space-y-3">
                     <p className="text-sm font-medium text-primary/80">
-                      {item.subtitle}
+                      {t(item.subtitleKey)}
                     </p>
                     <div className="text-foreground/90 leading-relaxed text-sm whitespace-pre-line">
                       {content}
@@ -249,15 +249,15 @@ const Results = () => {
           <div className="mystic-card rounded-2xl p-6 space-y-5">
             <div className="text-center">
               <h3 className="text-lg font-serif font-medium text-foreground mb-1">
-                Self-Recognition Score
+                {t('results.recognition')}
               </h3>
               <p className="text-sm text-muted-foreground">
-                How closely this reflection resonates with your lived experience
+                {t('results.recognition.subtitle')}
               </p>
             </div>
 
             <div className="flex flex-wrap justify-center gap-2">
-              {recognitionScoreOptions.map((option) => (
+              {getRecognitionScoreOptions(t).map((option) => (
                 <button
                   key={option.value}
                   onClick={() => setRecognitionScore(option.value)}
@@ -278,7 +278,7 @@ const Results = () => {
             {recognitionScore !== null && (
               <div className="pt-4 border-t border-border/20 text-center animate-fade-up">
                 <p className="text-sm text-foreground/70 italic leading-relaxed">
-                  If this reflection resonates, understanding timing can be just as important as understanding yourself.
+                  {t('results.recognition.message')}
                 </p>
               </div>
             )}
@@ -295,16 +295,16 @@ const Results = () => {
         {/* Life Energy Map Header */}
         <div className="text-center mb-6 animate-fade-up" style={{ animationDelay: "800ms" }}>
           <h2 className="text-xl font-serif font-medium text-foreground mb-1">
-            Life Energy Map
+            {t('results.lifeEnergy')}
           </h2>
           <p className="text-sm text-muted-foreground">
-            Five dimensions of your current energetic flow
+            {t('results.lifeEnergy.subtitle')}
           </p>
         </div>
 
         {/* Life Energy Dimensions */}
         <div className="space-y-6" style={{ animationDelay: "850ms" }}>
-          {dimensionConfig.map((dimension, index) => {
+          {dimensionConfigKeys.map((dimension, index) => {
             const data = result.lifeEnergyMap[dimension.key];
             const Icon = dimension.icon;
             const levelStyle = balanceLevelStyles[data.balanceLevel];
@@ -312,7 +312,7 @@ const Results = () => {
             return (
               <ResultSection
                 key={dimension.key}
-                title={dimension.title}
+                title={t(dimension.titleKey)}
                 icon={<Icon className="w-5 h-5" />}
                 delay={900 + index * 100}
               >
@@ -320,10 +320,10 @@ const Results = () => {
                   {/* Subtitle & Eastern Context */}
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-foreground/80">
-                      {dimension.subtitle}
+                      {t(dimension.subtitleKey)}
                     </p>
                     <p className="text-xs text-muted-foreground italic">
-                      {dimension.description}
+                      {t(dimension.descriptionKey)}
                     </p>
                   </div>
 
@@ -345,7 +345,7 @@ const Results = () => {
                   {/* Current State - Main Analysis */}
                   <div className="pt-3 border-t border-border/20">
                     <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-                      Current Pattern
+                      {t('results.currentState')}
                     </h4>
                     <p className="text-foreground/90 leading-relaxed text-sm">
                       {data.currentState}
@@ -358,7 +358,7 @@ const Results = () => {
                       <Sparkles className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                       <div>
                         <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
-                          Guidance
+                          {t('results.guidance')}
                         </h4>
                         <p className="text-sm text-foreground/80 leading-relaxed">
                           {data.guidance}
@@ -373,7 +373,7 @@ const Results = () => {
 
           {/* Overall Insight */}
           <ResultSection
-            title="Overall Pattern"
+            title={t('results.overall')}
             icon={<Sparkles className="w-5 h-5" />}
             delay={1450}
           >
@@ -384,7 +384,7 @@ const Results = () => {
 
           {/* Reflection Question */}
           <ResultSection
-            title="Reflection"
+            title={t('results.reflection')}
             icon={<MessageCircle className="w-5 h-5" />}
             delay={1550}
           >
@@ -397,7 +397,7 @@ const Results = () => {
         {/* 2026 Monthly Guidance Email Signup */}
         <section className="mt-12 animate-fade-up" style={{ animationDelay: "1650ms" }}>
           <ResultSection
-            title="Understanding Your Rhythm"
+            title={t('results.guidance2026')}
             icon={<Calendar className="w-5 h-5" />}
             delay={1700}
           >
@@ -405,26 +405,20 @@ const Results = () => {
               {/* Why timing matters */}
               <div className="space-y-3">
                 <p className="text-foreground/90 leading-relaxed text-sm">
-                  Self-knowledge is one half of wisdom. The other half is timing — understanding 
-                  when to act, when to wait, when to push forward, and when to restore.
+                  {t('results.guidance2026.intro1')}
                 </p>
                 <p className="text-foreground/80 leading-relaxed text-sm">
-                  In Eastern thought, each month carries its own quality of energy — not as fate, 
-                  but as a rhythm you can learn to move with. Like knowing when the tide rises, 
-                  you can choose when to set sail.
+                  {t('results.guidance2026.intro2')}
                 </p>
               </div>
 
               {/* The invitation */}
               <div className="pt-4 border-t border-border/20">
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                  If you found this reading useful, you may continue with monthly life-cycle 
-                  guidance for 2026 — brief insights on each month's energy patterns, delivered 
-                  at the start of each cycle.
+                  {t('results.guidance2026.invitation')}
                 </p>
                 <p className="text-xs text-muted-foreground/70 italic mb-5">
-                  This is entirely optional. No predictions. No obligations. Just a gentle 
-                  continuation of awareness.
+                  {t('results.guidance2026.optional')}
                 </p>
 
                 {/* Email form */}
@@ -434,7 +428,7 @@ const Results = () => {
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
                         type="email"
-                        placeholder="Your email address"
+                        placeholder={t('results.email.placeholder')}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="pl-10 bg-background/50 border-border/40 focus:border-primary/50"
@@ -449,20 +443,20 @@ const Results = () => {
                       className="w-full"
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? "Saving..." : "Receive 2026 Monthly Guidance"}
+                      {isSubmitting ? t('common.loading') : t('results.email.button')}
                     </MysticButton>
                     <p className="text-xs text-center text-muted-foreground/60">
-                      Your privacy is respected. Unsubscribe anytime.
+                      {t('results.email.privacy')}
                     </p>
                   </form>
                 ) : (
                   <div className="text-center py-4 px-3 rounded-xl bg-primary/10 border border-primary/20">
                     <Sparkles className="w-5 h-5 text-primary mx-auto mb-2" />
                     <p className="text-sm text-primary font-medium">
-                      You're all set
+                      {t('results.email.success.title')}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Your first monthly guidance will arrive at the start of the cycle.
+                      {t('results.email.success.message')}
                     </p>
                   </div>
                 )}
@@ -475,8 +469,7 @@ const Results = () => {
         <footer className="mt-10 space-y-4 animate-fade-up" style={{ animationDelay: "1800ms" }}>
           <div className="p-4 rounded-2xl bg-secondary/30 border border-border/30 text-center">
             <p className="text-sm text-muted-foreground">
-              This map reflects tendencies and patterns, not fixed outcomes. 
-              Your awareness and choices continuously shape your energy.
+              {t('results.disclaimer')}
             </p>
           </div>
 
@@ -486,7 +479,7 @@ const Results = () => {
             className="w-full flex items-center justify-center gap-2"
           >
             <RotateCcw className="w-4 h-4" />
-            Explore Again
+            {t('results.startOver')}
           </MysticButton>
         </footer>
       </main>
