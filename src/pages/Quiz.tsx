@@ -58,10 +58,10 @@ const Quiz = () => {
   const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('left');
   const prevStepRef = useRef(currentStep);
 
-  // Navigate to results immediately when result is set
+  // Navigate to loading screen when result is set
   useEffect(() => {
     if (result) {
-      navigate("/results", { state: { result } });
+      navigate("/loading", { state: { result } });
     }
   }, [result, navigate]);
 
