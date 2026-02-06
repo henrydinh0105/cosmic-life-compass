@@ -13,14 +13,19 @@ const ProgressDots = ({ total, current, className }: ProgressDotsProps) => {
         <div
           key={index}
           className={cn(
-            "h-2 rounded-full transition-all duration-500",
+            "relative h-2 rounded-full transition-all duration-500",
             index === current
-              ? "w-8 bg-gradient-to-r from-primary to-accent shadow-[0_0_10px_hsl(262_80%_50%_/_0.5)]"
+              ? "w-10 bg-gradient-to-r from-primary to-accent shadow-[0_0_15px_hsl(262_80%_50%_/_0.6)]"
               : index < current
-              ? "w-2 bg-primary/60"
+              ? "w-2 bg-primary/70 shadow-[0_0_8px_hsl(262_80%_50%_/_0.3)]"
               : "w-2 bg-muted-foreground/30"
           )}
-        />
+        >
+          {/* Animated glow for current step */}
+          {index === current && (
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-accent blur-sm animate-pulse-slow" />
+          )}
+        </div>
       ))}
     </div>
   );

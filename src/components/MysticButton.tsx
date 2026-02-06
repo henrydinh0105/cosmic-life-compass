@@ -12,7 +12,7 @@ const MysticButton = forwardRef<HTMLButtonElement, MysticButtonProps>(
       <button
         ref={ref}
         className={cn(
-          "relative overflow-hidden rounded-full font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed",
+          "group relative overflow-hidden rounded-full font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed",
           // Size variants
           size === "default" && "px-8 py-4 text-base",
           size === "lg" && "px-12 py-5 text-lg",
@@ -20,11 +20,13 @@ const MysticButton = forwardRef<HTMLButtonElement, MysticButtonProps>(
           // Style variants
           variant === "primary" && [
             "text-primary-foreground",
-            "bg-gradient-to-r from-primary to-accent",
+            "bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_100%]",
             "shadow-[0_0_30px_hsl(262_80%_50%_/_0.4)]",
             "hover:shadow-[0_0_50px_hsl(262_80%_50%_/_0.6)]",
             "hover:-translate-y-1",
+            "hover:bg-[position:100%_0]",
             "active:translate-y-0",
+            "animate-breathe",
           ],
           variant === "secondary" && [
             "text-foreground",
@@ -41,9 +43,12 @@ const MysticButton = forwardRef<HTMLButtonElement, MysticButtonProps>(
         )}
         {...props}
       >
-        {/* Glow effect for primary button */}
+        {/* Animated shimmer effect for primary button */}
         {variant === "primary" && (
-          <span className="absolute inset-0 bg-gradient-to-r from-primary/50 to-accent/50 blur-xl opacity-0 group-hover:opacity-50 transition-opacity" />
+          <>
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+            <span className="absolute inset-0 bg-gradient-to-r from-primary/30 to-accent/30 blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-300" />
+          </>
         )}
         <span className="relative z-10 flex items-center justify-center gap-2">
           {children}
