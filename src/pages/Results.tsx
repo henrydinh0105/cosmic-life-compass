@@ -131,6 +131,7 @@ const Results = () => {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [recognitionScore, setRecognitionScore] = useState<number | null>(null);
+  const [isEntering, setIsEntering] = useState(true);
 
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,19 +148,33 @@ const Results = () => {
     }
   }, [result, navigate]);
 
+  // Entrance animation trigger
+  useEffect(() => {
+    const timer = setTimeout(() => setIsEntering(false), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   if (!result) return null;
 
   return (
-    <div className="relative min-h-screen">
+    <div className={`relative min-h-screen transition-all duration-1000 ${isEntering ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
       <CosmicBackground />
       
+      {/* Entrance sparkle overlay */}
+      <div className={`fixed inset-0 z-20 pointer-events-none transition-opacity duration-1000 ${isEntering ? 'opacity-100' : 'opacity-0'}`}>
+        <div className="absolute inset-0 bg-gradient-radial from-primary/20 via-transparent to-transparent animate-pulse" />
+      </div>
+      
       <main className="relative z-10 px-6 py-12 max-w-lg mx-auto">
-        {/* Header */}
+        {/* Header with dramatic entrance */}
         <header className="text-center mb-10">
-          <h1 className="text-2xl sm:text-3xl font-serif font-medium mb-2 animate-fade-up">
+          <div className="animate-scale-fade-in">
+            <Sparkles className="w-8 h-8 text-primary mx-auto mb-4 animate-breathe" />
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-serif font-medium mb-2 animate-slide-up-fade">
             <span className="mystic-text-gradient">Your Complete Reading</span>
           </h1>
-          <p className="text-muted-foreground animate-fade-up" style={{ animationDelay: "100ms" }}>
+          <p className="text-muted-foreground animate-slide-up-fade" style={{ animationDelay: "200ms" }}>
             Personality snapshot and life energy dimensions
           </p>
         </header>
