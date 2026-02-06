@@ -3,10 +3,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import CosmicBackground from "@/components/CosmicBackground";
 import LoadingAnimation from "@/components/LoadingAnimation";
 import { Progress } from "@/components/ui/progress";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Loading = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
   const result = location.state?.result;
   const [progress, setProgress] = useState(0);
 
@@ -19,7 +21,7 @@ const Loading = () => {
     }
 
     // Smooth progress animation
-    const duration = 4000; // 4 seconds total
+    const duration = 5000; // 5 seconds total
     const interval = 50; // Update every 50ms
     const increment = (100 / duration) * interval;
 
@@ -59,7 +61,7 @@ const Loading = () => {
             className="h-1.5 bg-secondary/30"
           />
           <p className="text-center text-xs text-muted-foreground/60 mt-3">
-            {Math.round(progress)}% hoàn thành
+            {Math.round(progress)}% {t('loading.complete')}
           </p>
         </div>
       </main>

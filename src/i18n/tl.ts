@@ -161,7 +161,13 @@ const translations: Record<string, string> = {
   // Loading
   'loading.title': 'Sinusuri ang iyong mga pattern...',
   'loading.subtitle': 'Kumukonsulta sa karunungang Silangan',
-  
+  'loading.message.1': 'Sinusuri ang iyong enerhiya ng kapanganakan…',
+  'loading.message.2': 'Naghahanap ng katumbas na kosmikong pattern…',
+  'loading.message.3': 'Nagsi-synchronize sa mga ritmo ng buhay…',
+  'loading.message.4': 'Natutuklasan ang mga nakatagong tendensya…',
+  'loading.message.5': 'Kinukumpleto ang iyong panloob na larawan…',
+  'loading.complete': 'kumpleto',
+
   // Common
   'common.loading': 'Naglo-load...',
   'common.error': 'May nangyaring mali',

@@ -161,7 +161,13 @@ const translations: Record<string, string> = {
   // Loading
   'loading.title': 'Đang phân tích xu hướng của bạn...',
   'loading.subtitle': 'Tham vấn trí tuệ phương Đông',
-  
+  'loading.message.1': 'Đang phân tích năng lượng sinh nhật của bạn…',
+  'loading.message.2': 'Tìm kiếm mô hình vũ trụ tương ứng…',
+  'loading.message.3': 'Đồng bộ với nhịp điệu cuộc sống…',
+  'loading.message.4': 'Khám phá xu hướng tiềm ẩn…',
+  'loading.message.5': 'Hoàn thiện bức tranh nội tâm…',
+  'loading.complete': 'hoàn thành',
+
   // Common
   'common.loading': 'Đang tải...',
   'common.error': 'Đã có lỗi xảy ra',

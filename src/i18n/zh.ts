@@ -161,7 +161,13 @@ const translations: Record<string, string> = {
   // Loading
   'loading.title': '正在分析你的模式...',
   'loading.subtitle': '咨询东方智慧',
-  
+  'loading.message.1': '正在分析你的出生能量…',
+  'loading.message.2': '搜索对应的宇宙模式…',
+  'loading.message.3': '与生命节奏同步…',
+  'loading.message.4': '发现隐藏的倾向…',
+  'loading.message.5': '完成你的内心画像…',
+  'loading.complete': '完成',
+
   // Common
   'common.loading': '加载中...',
   'common.error': '出现了问题',

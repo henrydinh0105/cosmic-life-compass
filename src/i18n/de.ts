@@ -161,7 +161,13 @@ const translations: Record<string, string> = {
   // Loading
   'loading.title': 'Analysiere deine Muster...',
   'loading.subtitle': 'Konsultiere östliche Weisheit',
-  
+  'loading.message.1': 'Analysiere deine Geburtsenergie…',
+  'loading.message.2': 'Suche nach entsprechenden kosmischen Mustern…',
+  'loading.message.3': 'Synchronisiere mit Lebensrhythmen…',
+  'loading.message.4': 'Entdecke verborgene Tendenzen…',
+  'loading.message.5': 'Vollende dein inneres Porträt…',
+  'loading.complete': 'abgeschlossen',
+
   // Common
   'common.loading': 'Laden...',
   'common.error': 'Etwas ist schief gelaufen',
