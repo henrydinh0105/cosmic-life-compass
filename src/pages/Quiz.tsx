@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import CosmicBackground from "@/components/CosmicBackground";
 import MysticButton from "@/components/MysticButton";
@@ -53,6 +53,11 @@ const Quiz = () => {
     error,
   } = useQuiz();
 
+  // Animation states
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('left');
+  const prevStepRef = useRef(currentStep);
+
   // Navigate to results immediately when result is set
   useEffect(() => {
     if (result) {
@@ -60,12 +65,39 @@ const Quiz = () => {
     }
   }, [result, navigate]);
 
+  // Handle step change animations
+  useEffect(() => {
+    if (prevStepRef.current !== currentStep) {
+      setSlideDirection(currentStep > prevStepRef.current ? 'left' : 'right');
+      setIsTransitioning(true);
+      
+      const timer = setTimeout(() => {
+        setIsTransitioning(false);
+      }, 50);
+      
+      prevStepRef.current = currentStep;
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep]);
+
   const handleNext = () => {
     if (isLastStep) {
       submitQuiz();
     } else {
-      goNext();
+      setSlideDirection('left');
+      setIsTransitioning(true);
+      setTimeout(() => {
+        goNext();
+      }, 150);
     }
+  };
+
+  const handleBack = () => {
+    setSlideDirection('right');
+    setIsTransitioning(true);
+    setTimeout(() => {
+      goBack();
+    }, 150);
   };
 
   const currentAnswer = answers[currentQuestion.id as keyof typeof answers];
@@ -78,7 +110,7 @@ const Quiz = () => {
         {/* Header */}
         <header className="flex items-center justify-between mb-8">
           <button
-            onClick={currentStep === 0 ? () => navigate("/") : goBack}
+            onClick={currentStep === 0 ? () => navigate("/") : handleBack}
             className="p-2 -ml-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-6 h-6" />
@@ -87,11 +119,18 @@ const Quiz = () => {
           <div className="w-10" /> {/* Spacer for alignment */}
         </header>
 
-        {/* Question content */}
-        <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
+        {/* Question content with transition */}
+        <div 
+          key={currentStep}
+          className={`flex-1 flex flex-col justify-center max-w-md mx-auto w-full transition-all duration-300 ease-out ${
+            isTransitioning 
+              ? `opacity-0 ${slideDirection === 'left' ? 'translate-x-8' : '-translate-x-8'}` 
+              : 'opacity-100 translate-x-0'
+          }`}
+        >
           {/* Icon */}
           <div className="flex justify-center mb-6 animate-fade-up">
-            <div className="w-16 h-16 rounded-2xl bg-secondary/50 border border-border/50 flex items-center justify-center text-primary">
+            <div className="w-16 h-16 rounded-2xl bg-secondary/50 border border-border/50 flex items-center justify-center text-primary animate-breathe">
               {iconMap[currentQuestion.id]}
             </div>
           </div>
