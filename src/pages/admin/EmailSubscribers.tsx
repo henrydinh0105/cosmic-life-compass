@@ -14,7 +14,8 @@ const EmailSubscribers = () => {
     isLoading: dataLoading, 
     subscribers,
     refreshData,
-    exportSubscribersCSV
+    exportSubscribersCSV,
+    deleteSubscriber
   } = useAnalytics();
 
   // Redirect if not admin
@@ -61,7 +62,8 @@ const EmailSubscribers = () => {
         ) : (
           <EmailTable 
             data={subscribers} 
-            onExport={exportSubscribersCSV} 
+            onExport={exportSubscribersCSV}
+            onDelete={deleteSubscriber}
           />
         )}
       </div>

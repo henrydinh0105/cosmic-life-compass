@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   Mail,
   BarChart3,
+  Shield,
   LogOut,
   Menu,
   X
@@ -19,7 +20,8 @@ interface AdminLayoutProps {
 const navItems = [
   { path: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { path: "/admin/subscribers", label: "Subscribers", icon: Mail },
-  { path: "/admin/analytics", label: "Quiz Analytics", icon: BarChart3 }
+  { path: "/admin/analytics", label: "Quiz Analytics", icon: BarChart3 },
+  { path: "/admin/roles", label: "User Roles", icon: Shield }
 ];
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
