@@ -212,6 +212,10 @@
   .animate-breathe {
     animation: breathe 4s ease-in-out infinite;
   }
+
+  .animate-float-particle {
+    animation: float-particle 3s ease-out infinite;
+  }
 }
 
 @keyframes float {
@@ -336,5 +340,22 @@
   50% {
     transform: scale(1.02);
     opacity: 1;
+  }
+}
+
+@keyframes float-particle {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-200px) translateX(20px);
+    opacity: 0;
   }
 }
