@@ -171,6 +171,47 @@
   .animate-glow {
     animation: glow 2s ease-in-out infinite alternate;
   }
+
+  .animate-nebula-1 {
+    animation: nebula-drift 15s ease-in-out infinite, pulse-slow 8s ease-in-out infinite;
+  }
+
+  .animate-nebula-2 {
+    animation: nebula-drift-reverse 18s ease-in-out infinite, pulse-slow 10s ease-in-out infinite;
+    animation-delay: 2s;
+  }
+
+  .animate-nebula-3 {
+    animation: nebula-drift 20s ease-in-out infinite, pulse-slow 12s ease-in-out infinite;
+    animation-delay: 4s;
+  }
+
+  .animate-float-orb-1 {
+    animation: float-orb 8s ease-in-out infinite, glow-orb 3s ease-in-out infinite alternate;
+  }
+
+  .animate-float-orb-2 {
+    animation: float-orb 10s ease-in-out infinite reverse, glow-orb 4s ease-in-out infinite alternate;
+    animation-delay: 1s;
+  }
+
+  .animate-float-orb-3 {
+    animation: float-orb 12s ease-in-out infinite, glow-orb 5s ease-in-out infinite alternate;
+    animation-delay: 2s;
+  }
+
+  .animate-float-orb-4 {
+    animation: float-orb 9s ease-in-out infinite reverse, glow-orb 3.5s ease-in-out infinite alternate;
+    animation-delay: 3s;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s ease-in-out infinite;
+  }
+
+  .animate-breathe {
+    animation: breathe 4s ease-in-out infinite;
+  }
 }
 
 @keyframes float {
@@ -219,5 +260,81 @@
   }
   to {
     box-shadow: 0 0 40px hsl(262 80% 50% / 0.6);
+  }
+}
+
+@keyframes nebula-drift {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(30px, -20px) scale(1.05);
+  }
+  50% {
+    transform: translate(-20px, 30px) scale(0.95);
+  }
+  75% {
+    transform: translate(-30px, -10px) scale(1.02);
+  }
+}
+
+@keyframes nebula-drift-reverse {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(-25px, 20px) scale(0.98);
+  }
+  50% {
+    transform: translate(20px, -25px) scale(1.03);
+  }
+  75% {
+    transform: translate(15px, 15px) scale(0.97);
+  }
+}
+
+@keyframes float-orb {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(20px, -30px);
+  }
+  50% {
+    transform: translate(-15px, -50px);
+  }
+  75% {
+    transform: translate(-25px, -20px);
+  }
+}
+
+@keyframes glow-orb {
+  from {
+    box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+    opacity: 0.4;
+  }
+  to {
+    box-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
+    opacity: 0.8;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
   }
 }

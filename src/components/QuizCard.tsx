@@ -14,18 +14,32 @@ const QuizCard = ({ label, description, selected, onClick, icon }: QuizCardProps
     <button
       onClick={onClick}
       className={cn(
-        "relative w-full p-5 rounded-2xl text-left transition-all duration-300",
-        "border backdrop-blur-sm",
+        "group relative w-full p-5 rounded-2xl text-left transition-all duration-500",
+        "border backdrop-blur-sm overflow-hidden",
         selected
-          ? "border-primary/80 bg-primary/20 shadow-[0_0_25px_hsl(262_80%_50%_/_0.35)]"
-          : "border-border/50 bg-card/70 hover:border-primary/40 hover:bg-card/90"
+          ? "border-primary/80 bg-primary/20 shadow-[0_0_30px_hsl(262_80%_50%_/_0.4)] scale-[1.02]"
+          : "border-border/50 bg-card/70 hover:border-primary/50 hover:bg-card/90 hover:scale-[1.01]"
       )}
     >
-      <div className="flex items-start gap-4">
+      {/* Animated background glow on hover */}
+      <div className={cn(
+        "absolute inset-0 opacity-0 transition-opacity duration-500",
+        "bg-gradient-to-br from-primary/10 via-transparent to-accent/10",
+        selected ? "opacity-100" : "group-hover:opacity-50"
+      )} />
+      
+      {/* Shimmer effect on selected */}
+      {selected && (
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer bg-[length:200%_100%]" />
+      )}
+
+      <div className="relative flex items-start gap-4">
         {icon && (
           <div className={cn(
-            "flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center",
-            selected ? "bg-primary/30 text-primary" : "bg-secondary/80 text-foreground/70"
+            "flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300",
+            selected 
+              ? "bg-primary/40 text-primary shadow-[0_0_15px_hsl(262_80%_50%_/_0.3)]" 
+              : "bg-secondary/80 text-foreground/70 group-hover:bg-secondary group-hover:text-foreground"
           )}>
             {icon}
           </div>
@@ -39,7 +53,7 @@ const QuizCard = ({ label, description, selected, onClick, icon }: QuizCardProps
           </h3>
           {description && (
             <p className={cn(
-              "mt-1 text-sm line-clamp-2",
+              "mt-1 text-sm line-clamp-2 transition-colors duration-300",
               selected ? "text-foreground/80" : "text-foreground/60"
             )}>
               {description}
@@ -47,12 +61,12 @@ const QuizCard = ({ label, description, selected, onClick, icon }: QuizCardProps
           )}
         </div>
         <div className={cn(
-          "flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+          "flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300",
           selected
-            ? "border-primary bg-primary text-primary-foreground"
-            : "border-muted-foreground/30"
+            ? "border-primary bg-primary text-primary-foreground shadow-[0_0_10px_hsl(262_80%_50%_/_0.5)]"
+            : "border-muted-foreground/30 group-hover:border-primary/50"
         )}>
-          {selected && <Check className="w-4 h-4" />}
+          {selected && <Check className="w-4 h-4 animate-scale-in" />}
         </div>
       </div>
     </button>
