@@ -40,7 +40,7 @@ import {
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog";
-import { RefreshCw, Trash2, Plus, Shield, User } from "lucide-react";
+import { RefreshCw, Trash2, Plus, Shield, User, Search, Check } from "lucide-react";
 import { toast } from "sonner";
 
 interface UserRole {
@@ -50,10 +50,16 @@ interface UserRole {
   created_at: string;
 }
 
+interface SearchedUser {
+  id: string;
+  email: string;
+  created_at: string;
+}
+
 const UserRoles = () => {
   const navigate = useNavigate();
   const { isAdmin, isLoading: authLoading, user } = useAdminAuth();
-  const { fetchUserRoles, addUserRole, deleteUserRole } = useAnalytics();
+  const { fetchUserRoles, addUserRole, deleteUserRole, searchUsersByEmail } = useAnalytics();
   
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -61,9 +67,14 @@ const UserRoles = () => {
   
   // Add role dialog state
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [newUserId, setNewUserId] = useState("");
-  const [newRole, setNewRole] = useState<"admin" | "user">("user");
+  const [newRole, setNewRole] = useState<"admin" | "user">("admin");
   const [isAdding, setIsAdding] = useState(false);
+  
+  // Email search state
+  const [emailSearch, setEmailSearch] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchedUser[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<SearchedUser | null>(null);
 
   const loadRoles = useCallback(async () => {
     setIsLoading(true);
@@ -86,6 +97,22 @@ const UserRoles = () => {
     }
   }, [isAdmin, loadRoles]);
 
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (emailSearch.trim().length >= 2) {
+        setIsSearching(true);
+        const result = await searchUsersByEmail(emailSearch.trim());
+        setSearchResults(result.data as SearchedUser[]);
+        setIsSearching(false);
+      } else {
+        setSearchResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [emailSearch, searchUsersByEmail]);
+
   const handleDelete = async (id: string, userId: string) => {
     // Prevent deleting own admin role
     if (userId === user?.id) {
@@ -106,30 +133,42 @@ const UserRoles = () => {
   };
 
   const handleAddRole = async () => {
-    if (!newUserId.trim()) {
-      toast.error("Please enter a User ID");
+    if (!selectedUser) {
+      toast.error("Please select a user");
       return;
     }
 
-    // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(newUserId.trim())) {
-      toast.error("Please enter a valid UUID format");
+    // Check if user already has this role
+    const existingRole = roles.find(r => r.user_id === selectedUser.id && r.role === newRole);
+    if (existingRole) {
+      toast.error(`User already has ${newRole} role`);
       return;
     }
 
     setIsAdding(true);
-    const result = await addUserRole(newUserId.trim(), newRole);
+    const result = await addUserRole(selectedUser.id, newRole);
     setIsAdding(false);
 
     if (result.success) {
       toast.success("Role added successfully");
       setIsAddDialogOpen(false);
-      setNewUserId("");
-      setNewRole("user");
+      setEmailSearch("");
+      setSearchResults([]);
+      setSelectedUser(null);
+      setNewRole("admin");
       loadRoles();
     } else {
       toast.error(result.error || "Failed to add role");
+    }
+  };
+
+  const handleDialogClose = (open: boolean) => {
+    setIsAddDialogOpen(open);
+    if (!open) {
+      setEmailSearch("");
+      setSearchResults([]);
+      setSelectedUser(null);
+      setNewRole("admin");
     }
   };
 
@@ -153,29 +192,93 @@ const UserRoles = () => {
             </p>
           </div>
           <div className="flex gap-2">
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <Dialog open={isAddDialogOpen} onOpenChange={handleDialogClose}>
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="w-4 h-4 mr-2" />
                   Add Role
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle>Add User Role</DialogTitle>
                   <DialogDescription>
-                    Assign a role to a user. You'll need the user's UUID from the authentication system.
+                    Search for a user by email and assign a role.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
+                  {/* Email Search */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">User ID (UUID)</label>
-                    <Input
-                      placeholder="e.g., 3866f93e-34c5-485a-9aa8-0def702a7fbd"
-                      value={newUserId}
-                      onChange={(e) => setNewUserId(e.target.value)}
-                    />
+                    <label className="text-sm font-medium">Search User by Email</label>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Type email to search..."
+                        value={emailSearch}
+                        onChange={(e) => {
+                          setEmailSearch(e.target.value);
+                          setSelectedUser(null);
+                        }}
+                        className="pl-9"
+                      />
+                    </div>
+                    
+                    {/* Search Results */}
+                    {isSearching && (
+                      <div className="text-sm text-muted-foreground py-2">
+                        Searching...
+                      </div>
+                    )}
+                    
+                    {!isSearching && searchResults.length > 0 && (
+                      <div className="border rounded-lg max-h-48 overflow-y-auto">
+                        {searchResults.map((u) => (
+                          <button
+                            key={u.id}
+                            onClick={() => setSelectedUser(u)}
+                            className={`w-full text-left px-3 py-2 hover:bg-secondary transition-colors flex items-center justify-between ${
+                              selectedUser?.id === u.id ? "bg-primary/10" : ""
+                            }`}
+                          >
+                            <div>
+                              <div className="font-medium text-sm">{u.email}</div>
+                              <div className="text-xs text-muted-foreground font-mono">
+                                {u.id.slice(0, 8)}...
+                              </div>
+                            </div>
+                            {selectedUser?.id === u.id && (
+                              <Check className="w-4 h-4 text-primary" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {!isSearching && emailSearch.trim().length >= 2 && searchResults.length === 0 && (
+                      <div className="text-sm text-muted-foreground py-2">
+                        No users found matching "{emailSearch}"
+                      </div>
+                    )}
+                    
+                    {emailSearch.trim().length > 0 && emailSearch.trim().length < 2 && (
+                      <div className="text-sm text-muted-foreground py-2">
+                        Type at least 2 characters to search
+                      </div>
+                    )}
                   </div>
+
+                  {/* Selected User Display */}
+                  {selectedUser && (
+                    <div className="bg-secondary/50 rounded-lg p-3">
+                      <div className="text-xs text-muted-foreground mb-1">Selected User</div>
+                      <div className="font-medium">{selectedUser.email}</div>
+                      <div className="text-xs text-muted-foreground font-mono mt-1">
+                        ID: {selectedUser.id}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Role Selection */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Role</label>
                     <Select value={newRole} onValueChange={(v) => setNewRole(v as "admin" | "user")}>
@@ -183,17 +286,27 @@ const UserRoles = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="user">User</SelectItem>
+                        <SelectItem value="admin">
+                          <div className="flex items-center gap-2">
+                            <Shield className="w-4 h-4" />
+                            Admin
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="user">
+                          <div className="flex items-center gap-2">
+                            <User className="w-4 h-4" />
+                            User
+                          </div>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                  <Button variant="outline" onClick={() => handleDialogClose(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={handleAddRole} disabled={isAdding}>
+                  <Button onClick={handleAddRole} disabled={isAdding || !selectedUser}>
                     {isAdding ? "Adding..." : "Add Role"}
                   </Button>
                 </DialogFooter>
@@ -305,12 +418,6 @@ const UserRoles = () => {
             </Table>
           </div>
         )}
-
-        {/* Info box */}
-        <div className="bg-muted/50 rounded-lg p-4 text-sm text-muted-foreground">
-          <p><strong>Note:</strong> To add a new admin, first create a user in the Authentication system, 
-          then copy their User ID and add the admin role here.</p>
-        </div>
       </div>
     </AdminLayout>
   );

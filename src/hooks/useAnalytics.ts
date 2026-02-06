@@ -291,6 +291,20 @@ export const useAnalytics = () => {
     }
   }, []);
 
+  // Search users by email
+  const searchUsersByEmail = useCallback(async (searchTerm: string) => {
+    try {
+      const { data, error } = await supabase
+        .rpc("search_users_by_email", { search_term: searchTerm });
+
+      if (error) throw error;
+      return { success: true, data: data || [] };
+    } catch (err) {
+      console.error("Error searching users:", err);
+      return { success: false, error: err instanceof Error ? err.message : "Search failed", data: [] };
+    }
+  }, []);
+
   return {
     isLoading,
     error,
@@ -303,6 +317,7 @@ export const useAnalytics = () => {
     deleteSubscriber,
     fetchUserRoles,
     addUserRole,
-    deleteUserRole
+    deleteUserRole,
+    searchUsersByEmail
   };
 };
