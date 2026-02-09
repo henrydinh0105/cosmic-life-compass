@@ -394,12 +394,94 @@ const Results = () => {
           </ResultSection>
         </div>
 
-        {/* 2026 Monthly Guidance Email Signup */}
+        {/* 2026 Development Guidance */}
         <section className="mt-12 animate-fade-up" style={{ animationDelay: "1650ms" }}>
+          <ResultSection
+            title={t('results.development2026')}
+            icon={<TrendingUp className="w-5 h-5" />}
+            delay={1700}
+          >
+            <div className="space-y-5">
+              {/* Introduction */}
+              <p className="text-foreground/90 leading-relaxed text-sm">
+                {t('results.development2026.intro')}
+              </p>
+
+              {/* Quarterly Guidance */}
+              <div className="space-y-4 pt-2">
+                {/* Q1 */}
+                <div className="p-4 rounded-xl bg-secondary/40 border border-border/30">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-primary">
+                      {t('results.development2026.q1.title')}
+                    </span>
+                  </div>
+                  <p className="text-sm text-foreground/80 leading-relaxed">
+                    {t('results.development2026.q1.guidance')}
+                  </p>
+                </div>
+
+                {/* Q2 */}
+                <div className="p-4 rounded-xl bg-secondary/40 border border-border/30">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-primary">
+                      {t('results.development2026.q2.title')}
+                    </span>
+                  </div>
+                  <p className="text-sm text-foreground/80 leading-relaxed">
+                    {t('results.development2026.q2.guidance')}
+                  </p>
+                </div>
+
+                {/* Q3 */}
+                <div className="p-4 rounded-xl bg-secondary/40 border border-border/30">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-primary">
+                      {t('results.development2026.q3.title')}
+                    </span>
+                  </div>
+                  <p className="text-sm text-foreground/80 leading-relaxed">
+                    {t('results.development2026.q3.guidance')}
+                  </p>
+                </div>
+
+                {/* Q4 */}
+                <div className="p-4 rounded-xl bg-secondary/40 border border-border/30">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-primary">
+                      {t('results.development2026.q4.title')}
+                    </span>
+                  </div>
+                  <p className="text-sm text-foreground/80 leading-relaxed">
+                    {t('results.development2026.q4.guidance')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Summary advice */}
+              <div className="pt-4 border-t border-border/20">
+                <div className="flex items-start gap-2">
+                  <Zap className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                      {t('results.development2026.keyAdvice.title')}
+                    </h4>
+                    <p className="text-sm text-foreground/80 leading-relaxed">
+                      {t('results.development2026.keyAdvice.content')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ResultSection>
+        </section>
+
+        {/* 2026 Monthly Guidance Email Signup */}
+        <section className="mt-8 animate-fade-up" style={{ animationDelay: "1800ms" }}>
           <ResultSection
             title={t('results.guidance2026')}
             icon={<Calendar className="w-5 h-5" />}
-            delay={1700}
+            delay={1850}
           >
             <div className="space-y-5">
               {/* Why timing matters */}

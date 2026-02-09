@@ -152,7 +152,21 @@ const translations: Record<string, string> = {
   'results.overall': 'Overall Pattern',
   'results.reflection': 'Reflection',
   
-  'results.guidance2026': 'Understanding Your Rhythm',
+  // 2026 Development Guidance
+  'results.development2026': '2026 Development Guidance',
+  'results.development2026.intro': 'Based on your energy patterns, here are insights for your growth journey in 2026. Remember: these are invitations for reflection, not predictions. Your choices shape your path.',
+  'results.development2026.q1.title': 'Q1: Jan – Mar • Foundation Phase',
+  'results.development2026.q1.guidance': 'The early months of 2026 favor establishing roots and clarifying intentions. Focus on what truly matters to you. This is a time for planning rather than rushing into action. Review your resources, strengthen your support systems, and set clear priorities.',
+  'results.development2026.q2.title': 'Q2: Apr – Jun • Expansion Phase',
+  'results.development2026.q2.guidance': 'Spring energy supports outward movement and new connections. Take initiative on projects that align with your core values. This period favors learning, networking, and trying approaches you have been considering. Trust your momentum.',
+  'results.development2026.q3.title': 'Q3: Jul – Sep • Integration Phase',
+  'results.development2026.q3.guidance': 'Mid-year calls for balance between activity and reflection. Assess what is working and refine your approach. Strengthen relationships that matter. Address any imbalances in your life energy before they become obstacles.',
+  'results.development2026.q4.title': 'Q4: Oct – Dec • Harvest Phase',
+  'results.development2026.q4.guidance': 'The year\'s final quarter is ideal for completing what you started and preparing for the next cycle. Celebrate progress, however small. Release what no longer serves you. Plant seeds for 2027 by envisioning what you want to cultivate next.',
+  'results.development2026.keyAdvice.title': 'Key Principle for 2026',
+  'results.development2026.keyAdvice.content': 'Your elemental tendency suggests working with natural rhythms rather than against them. When you feel resistance, pause and listen. When you feel flow, move with it. The patterns are guides, not guarantees — your awareness and choices remain your greatest power.',
+
+  'results.guidance2026': 'Monthly Guidance Updates',
   'results.guidance2026.intro1': 'Self-knowledge is one half of wisdom. The other half is timing — understanding when to act, when to wait, when to push forward, and when to restore.',
   'results.guidance2026.intro2': "In Eastern thought, each month carries its own quality of energy — not as fate, but as a rhythm you can learn to move with. Like knowing when the tide rises, you can choose when to set sail.",
   'results.guidance2026.invitation': "If you found this reading useful, you may continue with monthly life-cycle guidance for 2026 — brief insights on each month's energy patterns, delivered at the start of each cycle.",
